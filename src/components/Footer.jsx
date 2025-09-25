@@ -1,12 +1,12 @@
 import React from "react";
 import Carousel from "./Carousel";
 import billy from "../assets/billy.jpg";
-import ana from "../assets/ana.jpg";
+import fraters from "../assets/fraters.jpg";
 import omar from "../assets/omar.jpg";
 import mari from "../assets/mari.jpg";
 
 const links = [
-  { name: "Carabajal A. V.", img: ana },
+  { name: "Fraters", img: fraters },
   { name: "Coria F. O.", img: omar },
   { name: "Carabajal M. R.", img: mari },
   { name: "Negrete O. C.", img: billy },

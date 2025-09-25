@@ -1,5 +1,5 @@
 import React from "react";
-import nico1 from "../assets/nico1.jpg";
+import martin from "../assets/martin.jpg";
 import fondo2 from "../assets/fondo2.jpg";
 import Works from "./Works";
 
@@ -13,13 +13,13 @@ function Home() {
     <div className="bg-[#C6AC8F]">
       <div className="relative min-h-screen ">
         <img
-          className="h-screen w-full object-cover opacity-65"
+          className="h-screen w-full object-cover opacity-75"
           src={fondo2}
           alt=""
         />
         <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center text-center px-4">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-imbue uppercase tracking-widest text-[#C6AC8F] md:text-[#EAE0D5] drop-shadow-lg text-center  transition hover:text-black hover:tracking-[0.3em]">
-            coria black tattoo
+            Martin Coria Barber
           </h1>
 
           <h2 className="text-2xl sm:text-5xl text-white font-imbue mt-16 drop-shadow-lg">
@@ -51,17 +51,17 @@ function Home() {
 
       <div
         id="sobre-mi"
-        className="min-h-screen bg-[#C6AC8F] flex items-center justify-center p-8"
+        className="min-h-screen bg-[#363634] flex items-center justify-center p-8"
       >
-        <div className="bg-[#C6AC8F] flex flex-col md:flex-row items-center justify-center p-8 gap-8">
+        <div className="bg-[#363634] flex flex-col md:flex-row items-center justify-center p-8 gap-8">
           <div className="text-center md:text-left md:w-1/2">
             <h1
-              className="text-4xl font-bold text-black mb-4 font-imbue"
+              className="text-4xl font-bold text-white text-black mb-4 font-imbue"
               style={{ transform: "scaleY(2)" }}
             >
               SOBRE MI
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-600 text-white">
               Hola! Soy Coria Nicolas, un joven y aprendiz tatuador que mi
               interés comenzó desde muy joven dibujando y viendo revistas y
               programas de televsión sobre el tattoo. Busco mejorar cada dia
@@ -70,7 +70,7 @@ function Home() {
             </p>
           </div>
           <div className="md:w-1/2 flex justify-center">
-            <img className="rounded-lg h-64 w-64" src={nico1} alt="" />
+            <img className="rounded-lg h-64 w-64" src={martin} alt="" />
           </div>
         </div>
       </div>
