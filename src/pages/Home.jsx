@@ -19,7 +19,7 @@ function Home() {
         />
         <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center text-center px-4">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-imbue uppercase tracking-widest text-[#C6AC8F] md:text-[#EAE0D5] drop-shadow-lg text-center  transition hover:text-black hover:tracking-[0.3em]">
-            Martin Coria Barber
+            Martin Coria
           </h1>
 
           <h2 className="text-2xl sm:text-5xl text-white font-imbue mt-16 drop-shadow-lg">

@@ -1,5 +1,4 @@
 import React from "react";
-import Carousel from "./Carousel";
 import billy from "../assets/billy.jpg";
 import fraters from "../assets/fraters.jpg";
 import omar from "../assets/omar.jpg";
@@ -15,10 +14,6 @@ const links = [
 function Footer() {
   return (
     <div className="bg-[#5E503F]">
-      {/* Carousel social links */}
-      <section className="bg-[#EAE0D5] h-32 w-full flex items-center justify-center">
-        <Carousel />
-      </section>
       <section className="h-auto flex flex-col items-center justify-center gap-8 py-12">
         <h2 className="text-white text-3xl font-imbue underline">
           Agradecimientos
