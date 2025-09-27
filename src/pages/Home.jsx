@@ -2,6 +2,7 @@ import React from "react";
 import martin from "../assets/martin.jpg";
 import fondo2 from "../assets/fondo2.jpg";
 import Works from "./Works";
+import WhatsAppButton from "../components/WhatsAppButton";
 
 function Home() {
   const scrollToSection = () => {
@@ -78,6 +79,7 @@ function Home() {
       <section>
         <Works />
       </section>
+      <WhatsAppButton/>
     </div>
   );
 }
