@@ -45,12 +45,6 @@ export default function Services() {
             </div>
           ))}
         </div>
-
-        {/* texto inferior */}
-        <p className="text-cyan-400 mt-8">
-          Todos nuestros servicios incluyen una bebida de cortesía
-          (Café, Cerveza o Whisky).
-        </p>
       </div>
     </section>
   );

@@ -3,6 +3,9 @@ import martin from "../assets/martin.jpg";
 import fondo2 from "../assets/fondo2.jpg";
 import Works from "./Works";
 import WhatsAppButton from "../components/WhatsAppButton";
+import { Calendar } from "lucide-react";
+import "react-day-picker/dist/style.css";
+
 
 function Home() {
   const scrollToSection = () => {
@@ -62,6 +65,8 @@ function Home() {
             >
               SOBRE MI
             </h1>
+      <Calendar/>
+
             <p className="text-lg text-gray-600 text-white">
               Hola! Soy Coria Nicolas, un joven y aprendiz tatuador que mi
               interés comenzó desde muy joven dibujando y viendo revistas y
@@ -75,7 +80,6 @@ function Home() {
           </div>
         </div>
       </div>
-
       <section>
         <Works />
       </section>
