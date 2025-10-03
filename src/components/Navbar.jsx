@@ -32,10 +32,10 @@ export default function Navbar() {
             TRABAJOS
           </button>
           <button
-            onClick={() => scrollToSection("contacto")}
+            onClick={() => scrollToSection("turnos")}
             className="text-black hover:text-red-500 font-serif"
           >
-            REDES
+            TURNOS
           </button>
         </div>
 
@@ -63,10 +63,10 @@ export default function Navbar() {
             TRABAJOS
           </button>
           <button
-            onClick={() => scrollToSection("contacto")}
+            onClick={() => scrollToSection("turnos")}
             className="text-black"
           >
-            REDES
+            TURNOS
           </button>
         </div>
       )}
