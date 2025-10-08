@@ -6,8 +6,12 @@ import "react-day-picker/dist/style.css";
 
 function Home() {
   const scrollToSection = () => {
-    const section = document.getElementById("sobre-mi");
+    const section = document.getElementById("turnos");
     section?.scrollIntoView({ behavior: "smooth" });
+    }
+     const scrollToSection2 = () => {
+      const section = document.getElementById("sobre-mi");
+      section?.scrollIntoView({ behavior: "smooth"})
   };
 
   return (
@@ -32,7 +36,7 @@ function Home() {
           >
             Ver más
           </button>
-          <div onClick={scrollToSection} className="mt-10 cursor-pointer">
+          <div onClick={scrollToSection2} className="mt-10 cursor-pointer">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="56"
