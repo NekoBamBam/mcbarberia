@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import React from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import { format, startOfWeek } from "date-fns";
+import { format, startOfWeek, parse, isValid } from "date-fns";
 import { es } from "date-fns/locale";
 
 export default function Turnos() {
@@ -16,32 +16,61 @@ export default function Turnos() {
   const sheetURL =
     "https://docs.google.com/spreadsheets/d/e/2PACX-1vQAlc4rtVEfhi8qcrYpT7GzIqnN_0cRpNGni6hH4MDy59iBMzgvKGuO1oS0vTu61AW0O1WQRn73M_wa/pub?output=csv";
 
+  // util: intenta parsear string de fecha en varios formatos
+  const parseSemanaString = (str) => {
+    if (!str) return null;
+    const s = str.trim();
+    // Intentar ISO yyyy-MM-dd
+    let d = parse(s, "yyyy-MM-dd", new Date());
+    if (isValid(d)) return d;
+    // Intentar dd/MM/yyyy
+    d = parse(s, "dd/MM/yyyy", new Date());
+    if (isValid(d)) return d;
+    // Intentar parse nativo (último recurso)
+    const n = new Date(s);
+    if (!isNaN(n)) return n;
+    return null;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await fetch(sheetURL);
         const text = await res.text();
-        const rows = text.split("\n").map((r) => r.split(","));
+
+        // separar lineas, respetando posibles \r\n
+        const lines = text.split(/\r?\n/).filter(Boolean);
+        const rows = lines.map((r) => r.split(","));
         const data = rows.slice(1); // ignorar encabezados
 
         const semanas = {};
         data.forEach((row) => {
-          if (!row[0]) return;
-          const semana = row[0].trim();
+          if (!row || !row[0]) return;
+          const rawSemana = row[0].trim();
+          const parsed = parseSemanaString(rawSemana);
+          if (!parsed) {
+            console.warn("No se pudo parsear la fecha de semana:", rawSemana);
+            return;
+          }
+          // clave usada en la app: inicio de semana (lunes) en yyyy-MM-dd
+          const semanaKey = format(startOfWeek(parsed, { weekStartsOn: 1 }), "yyyy-MM-dd");
+
+          // días y horarios: usamos ; dentro de celdas en la hoja
           const dias = row[1]?.split(";").map((d) => d.trim().toLowerCase()) || [];
           const horarios = row.slice(2).join(",").split(";").map((h) => h.trim()).filter(Boolean);
-          semanas[semana] = { dias, horarios };
+
+          semanas[semanaKey] = { dias, horarios };
         });
 
         setConfig(semanas);
+        console.log("config cargada:", semanas);
       } catch (err) {
         console.error("Error cargando Google Sheet:", err);
       }
     };
 
     fetchData();
-  }, []);
-
+  }, [sheetURL]);
 
   if (!config) return <p className="text-white">Cargando disponibilidad...</p>;
 
@@ -57,23 +86,62 @@ export default function Turnos() {
     sábado: 6,
   };
 
+  // normaliza texto (quita tildes, mayúsculas, espacios)
   const normalizar = (texto) =>
-    texto
+    (texto || "")
+      .toString()
       .toLowerCase()
       .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, ""); // quita tildes
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
 
   const baseDate = selectedDay || new Date();
   const inicioSemana = startOfWeek(baseDate, { weekStartsOn: 1 });
   const keySemana = format(inicioSemana, "yyyy-MM-dd");
 
   const semanaActual = config[keySemana];
+
+  // Mapear días a números, permitiendo 0
   const diasDisponibles = semanaActual
-    ? semanaActual.dias.map((d) => diaANumero[normalizar(d)]).filter(Boolean)
+    ? semanaActual.dias
+        .map((d) => diaANumero[normalizar(d)])
+        .filter((d) => d !== undefined && d !== null)
     : [];
+
+  // todos los días de la semana
+  const todosLosDias = [0, 1, 2, 3, 4, 5, 6];
+  const diasNoDisponibles = todosLosDias.filter((d) => !diasDisponibles.includes(d));
 
   const horarios = semanaActual ? semanaActual.horarios : [];
 
+  // DEBUG: loguear para ver qué está llegando
+  console.log("keySemana:", keySemana);
+  console.log("semanaActual:", semanaActual);
+  console.log("diasDisponibles:", diasDisponibles);
+  console.log("diasNoDisponibles:", diasNoDisponibles);
+
+  // proteger selección: si el usuario hace click en un día no disponible, ignorar
+  const handleSelect = (day) => {
+    if (!day) {
+      setSelectedDay(null);
+      return;
+    }
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const dayStart = new Date(day);
+    dayStart.setHours(0, 0, 0, 0);
+
+    const dow = day.getDay();
+    if (dayStart < todayStart) {
+      // fecha pasada: ignorar
+      return;
+    }
+    if (diasNoDisponibles.includes(dow)) {
+      // día no disponible: ignorar
+      return;
+    }
+    setSelectedDay(day);
+  };
 
   const generarLink = () => {
     if (!selectedDay || !selectedHour) return "#";
@@ -89,26 +157,25 @@ export default function Turnos() {
         <DayPicker
           mode="single"
           selected={selectedDay}
-          onSelect={setSelectedDay}
-          disabled={{
-            before: new Date(),
-            daysOfWeek: [0, 1, 2, 3, 4, 5, 6].filter(
-              (d) => !diasDisponibles.includes(d)
-            ),
-          }}
+          onSelect={handleSelect}
+          disabled={[
+            { before: new Date() },
+            { daysOfWeek: diasNoDisponibles },
+          ]}
           modifiers={{
-            notAvailable: {
-              daysOfWeek: [0, 1, 2, 3, 4, 5, 6].filter(
-                (d) => !diasDisponibles.includes(d)
-              ),
-            },
+            notAvailable: { daysOfWeek: diasNoDisponibles },
+            available: { daysOfWeek: diasDisponibles },
           }}
           modifiersStyles={{
             notAvailable: {
               color: "red",
-              opacity: 0.5,
+              opacity: 0.6,
               textDecoration: "line-through",
-              pointerEvents: "none",
+              backgroundColor: "#fff0f0",
+            },
+            available: {
+              // estilo opcional para días disponibles
+              // backgroundColor: "#f0fff4"
             },
           }}
           className="p-4 border rounded-xl shadow-md bg-white text-black mx-auto"
@@ -117,13 +184,11 @@ export default function Turnos() {
             head: { color: "black" },
             day: { color: "black" },
             day_selected: { backgroundColor: "#000", color: "#fff" },
-            day_disabled: { color: "#ccc" },
+            day_disabled: { color: "#ccc", cursor: "not-allowed" },
             day_today: { border: "1px solid #000" },
           }}
           locale={es}
         />
-
-
 
         {/* Horarios */}
         {selectedDay && horarios.length > 0 && (
@@ -139,7 +204,7 @@ export default function Turnos() {
                   className={`p-3 rounded-xl border transition ${selectedHour === hora
                     ? "bg-black text-white"
                     : "bg-white text-black hover:bg-gray-100"
-                    }`}
+                  }`}
                 >
                   {hora}
                 </button>
