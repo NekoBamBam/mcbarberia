@@ -73,20 +73,20 @@ export default function Turnos() {
 
   if (!selectedBarbero) {
     return (
-      <div className="flex flex-col items-center gap-6 p-10 bg-black text-white">
+      <div id="turnos" className="flex flex-col items-center gap-6 p-10 bg-black text-white">
         <h2 className="text-2xl font-bold">Elegí tu barbero</h2>
         <div className="flex gap-6">
           <button
-            onClick={() => setSelectedBarbero("juan")}
+            onClick={() => setSelectedBarbero("martin")}
             className="px-8 py-4 bg-white text-black rounded-xl hover:bg-gray-200 font-semibold"
           >
-            Juan
+            Martin
           </button>
           <button
-            onClick={() => setSelectedBarbero("pedro")}
+            onClick={() => setSelectedBarbero("emi")}
             className="px-8 py-4 bg-white text-black rounded-xl hover:bg-gray-200 font-semibold"
           >
-            Pedro
+            Emi
           </button>
         </div>
       </div>
@@ -134,7 +134,7 @@ export default function Turnos() {
   };
 
   return (
-    <div id="turnos" className="flex flex-col items-center bg-black gap-6 p-6 text-white">
+    <div className="flex flex-col items-center bg-black gap-6 p-6 text-white">
       <button
         onClick={() => setSelectedBarbero(null)}
         className="self-start px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600"
