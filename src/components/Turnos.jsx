@@ -134,7 +134,7 @@ export default function Turnos() {
   };
 
   return (
-    <div className="flex flex-col items-center bg-black gap-6 p-6 text-white">
+    <div id="turnos" className="flex flex-col items-center bg-black gap-6 p-6 text-white">
       <button
         onClick={() => setSelectedBarbero(null)}
         className="self-start px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600"
