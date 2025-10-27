@@ -1,3 +1,22 @@
-# Portfolio de Tatuajes 🎨🖤
+# 💈 BarberTurnos — Landing Page + Sistema de Turnos
 
-Este es un portfolio simple pero con onda, hecho con React y Tailwind, para mostrar algunos de los tatuajes que fui haciendo. La idea es que se vea bien limpio y moderno, y que puedas chatear fácil por WhatsApp con un solo clic para pedir turno o consultar. Perfecto para tatuadores que quieran mostrar su arte y que los clientes puedan contactarlos sin vueltas. ¡Dale una mirada y mándame un mensaje si te copó algo! ✌️
+Landing page moderna y minimalista desarrollada para un barbero, que incluye un **sistema de turnos online**, **presentación de servicios** y enlace directo al **perfil de Instagram** para ver los trabajos realizados.
+
+---
+
+## 🚀 Tecnologías utilizadas
+
+- ⚛️ **React** — Librería principal para la interfaz de usuario.  
+- 💨 **Tailwind CSS** — Framework CSS para un diseño rápido y responsive.  
+- 📄 **Google Sheets API** — Utilizado como base de datos para gestionar los turnos.  
+- 🌐 **Vite** — Herramienta para el entorno de desarrollo y build rápida.  
+
+---
+
+## 🧠 Funcionalidades
+
+- 📅 **Sistema de turnos** conectado con Google Sheets.  
+- 💇‍♂️ **Vista de servicios y horarios disponibles**.  
+- 🔗 **Botón directo al perfil de Instagram** del barbero.  
+- 📱 **Diseño responsive** adaptable a móviles, tablets y desktop.  
+- ⚡ **Carga rápida y optimizada** con Vite + Tailwind.  
