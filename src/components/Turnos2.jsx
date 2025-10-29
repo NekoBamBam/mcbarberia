@@ -1,3 +1,4 @@
+/*
 import { useEffect, useState } from "react";
 import React from "react";
 import { DayPicker } from "react-day-picker";
@@ -6,14 +7,22 @@ import { format, startOfWeek, parse, isValid } from "date-fns";
 import { es } from "date-fns/locale";
 
 export default function Turnos() {
+  const [selectedBarbero, setSelectedBarbero] = useState(null);
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedHour, setSelectedHour] = useState(null);
   const [config, setConfig] = useState(null);
 
-  const sheetURL =
-    "https://docs.google.com/spreadsheets/d/e/2PACX-1vQAlc4rtVEfhi8qcrYpT7GzIqnN_0cRpNGni6hH4MDy59iBMzgvKGuO1oS0vTu61AW0O1WQRn73M_wa/pub?output=csv";
+  const sheetURLs = {
+    martin: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQAlc4rtVEfhi8qcrYpT7GzIqnN_0cRpNGni6hH4MDy59iBMzgvKGuO1oS0vTu61AW0O1WQRn73M_wa/pub?output=csv",
+    emi: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQgf3kymDXOXNo4iF7ER8NQRI3QP40RhLRqUdNz7oYcIw9YTjQi0ipr5a7kjVW8VOMxVqW-yPnC-n1d/pub?output=csv",
+  };
 
-  const whatsappNumber = "2215691249";
+  const numeros = {
+    martin: "2216282112",
+    emi: "2215115752",
+  };
+
+  const whatsappNumber = numeros[selectedBarbero];
 
   const parseSemanaString = (str) => {
     if (!str) return null;
@@ -27,9 +36,11 @@ export default function Turnos() {
   };
 
   useEffect(() => {
+    if (!selectedBarbero) return; // solo cargar cuando se elija barbero
+
     const fetchData = async () => {
       try {
-        const res = await fetch(sheetURL);
+        const res = await fetch(sheetURLs[selectedBarbero]);
         const text = await res.text();
         const lines = text.split(/\r?\n/).filter(Boolean);
         const rows = lines.map((r) => r.split(","));
@@ -59,10 +70,33 @@ export default function Turnos() {
     };
 
     fetchData();
-  }, []);
+  }, [selectedBarbero]);
+
+  if (!selectedBarbero) {
+    return (
+      <div id="turnos" className="flex flex-col items-center gap-6 p-10 bg-black text-white">
+        <h2 className="text-2xl font-bold">Elegí tu barbero</h2>
+        <div className="flex gap-6">
+          <button
+            onClick={() => setSelectedBarbero("martin")}
+            className="px-8 py-4 bg-white text-black rounded-xl hover:bg-gray-200 font-semibold"
+          >
+            Martin
+          </button>
+          <button
+            onClick={() => setSelectedBarbero("emi")}
+            className="px-8 py-4 bg-white text-black rounded-xl hover:bg-gray-200 font-semibold"
+          >
+            Emi
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (!config) return <p className="text-white text-center mt-10">Cargando disponibilidad...</p>;
 
+  // mapeo y estilos igual que antes
   const diaANumero = {
     domingo: 0, lunes: 1, martes: 2, miercoles: 3, miércoles: 3,
     jueves: 4, viernes: 5, sabado: 6, sábado: 6,
@@ -96,13 +130,20 @@ export default function Turnos() {
   const generarLink = () => {
     if (!selectedDay || !selectedHour) return "#";
     const fecha = format(selectedDay, "dd/MM/yyyy");
-    const mensaje = `Hola, quiero un turno con Martin para el día ${fecha} a las ${selectedHour}`;
+    const mensaje = `Hola, quiero un turno con ${selectedBarbero} para el día ${fecha} a las ${selectedHour}`;
     return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
   };
 
   return (
     <div id="turnos" className="flex flex-col items-center bg-black gap-6 p-6 text-white">
-      <h2 className="text-2xl font-bold">Turnos con Martin</h2>
+      <button
+        onClick={() => setSelectedBarbero(null)}
+        className="self-start px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600"
+      >
+        ← Cambiar barbero
+      </button>
+
+      <h2 className="text-2xl font-bold">Turnos con {selectedBarbero}</h2>
 
       <div className="flex flex-col md:flex-row md:items-start md:gap-10 md:justify-center w-full max-w-5xl">
         <DayPicker
@@ -138,11 +179,10 @@ export default function Turnos() {
                 <button
                   key={hora}
                   onClick={() => setSelectedHour(hora)}
-                  className={`p-3 rounded-xl border transition ${
-                    selectedHour === hora
+                  className={`p-3 rounded-xl border transition ${selectedHour === hora
                       ? "bg-black text-white"
                       : "bg-white text-black hover:bg-gray-100"
-                  }`}
+                    }`}
                 >
                   {hora}
                 </button>
@@ -165,3 +205,4 @@ export default function Turnos() {
     </div>
   );
 }
+ */
