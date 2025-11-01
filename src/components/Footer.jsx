@@ -18,6 +18,14 @@ function Footer() {
         >
           Coria Franco Nicolas
         </a>
+        <a
+          href="https://github.com/Lawcito"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="absolute bottom-2 right-4 text-black hover:underline"
+        >
+          Negrete Emir Alejo
+        </a>
       </section>
 
 
