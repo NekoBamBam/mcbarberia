@@ -71,25 +71,46 @@ export default function Turnos() {
   const normalizar = (texto) =>
     (texto || "").toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
 
-  const baseDate = selectedDay || new Date();
-  const inicioSemana = startOfWeek(baseDate, { weekStartsOn: 1 });
-  const keySemana = format(inicioSemana, "yyyy-MM-dd");
+  const isNotAvailable = (day) => {
+    const inicioSemana = startOfWeek(day, { weekStartsOn: 1 });
+    const keySemana = format(inicioSemana, "yyyy-MM-dd");
+    const semanaActual = config[keySemana];
 
-  const semanaActual = config[keySemana];
-  const diasDisponibles = semanaActual
-    ? semanaActual.dias.map((d) => diaANumero[normalizar(d)]).filter((d) => d !== undefined)
-    : [];
-  const diasNoDisponibles = [0, 1, 2, 3, 4, 5, 6].filter((d) => !diasDisponibles.includes(d));
-  const horarios = semanaActual ? semanaActual.horarios : [];
+    if (!semanaActual || !semanaActual.dias || semanaActual.dias.length === 0) {
+      return true;
+    }
+
+    const diasDisponibles = semanaActual.dias.map((d) => diaANumero[normalizar(d)]).filter((d) => d !== undefined);
+    return !diasDisponibles.includes(day.getDay());
+  };
+
+  const horarios = (() => {
+    if (!selectedDay) return [];
+    const inicioSemana = startOfWeek(selectedDay, { weekStartsOn: 1 });
+    const keySemana = format(inicioSemana, "yyyy-MM-dd");
+    const semanaActual = config[keySemana];
+    return semanaActual ? semanaActual.horarios : [];
+  })();
 
   const handleSelect = (day) => {
     if (!day) return setSelectedDay(null);
+
     const dayStart = new Date(day);
     dayStart.setHours(0, 0, 0, 0);
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
     if (dayStart < todayStart) return;
-    if (diasNoDisponibles.includes(day.getDay())) return;
+
+    const inicioSemana = startOfWeek(day, { weekStartsOn: 1 });
+    const keySemana = format(inicioSemana, "yyyy-MM-dd");
+    const semanaActual = config[keySemana];
+    const diasDisponibles = semanaActual
+      ? semanaActual.dias.map((d) => diaANumero[normalizar(d)]).filter((d) => d !== undefined)
+      : [];
+    const diasNoDisponiblesParaEsteDia = [0, 1, 2, 3, 4, 5, 6].filter((d) => !diasDisponibles.includes(d));
+
+    if (diasNoDisponiblesParaEsteDia.includes(day.getDay())) return;
+
     setSelectedDay(day);
   };
 
@@ -109,10 +130,9 @@ export default function Turnos() {
           mode="single"
           selected={selectedDay}
           onSelect={handleSelect}
-          disabled={[{ before: new Date() }, { daysOfWeek: diasNoDisponibles }]}
+          disabled={[{ before: new Date() }]}
           modifiers={{
-            notAvailable: { daysOfWeek: diasNoDisponibles },
-            available: { daysOfWeek: diasDisponibles },
+            notAvailable: isNotAvailable,
           }}
           modifiersStyles={{
             notAvailable: { color: "red", opacity: 0.6, textDecoration: "line-through" },

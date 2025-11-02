@@ -8,11 +8,12 @@ function Home() {
   const scrollToSection = () => {
     const section = document.getElementById("turnos");
     section?.scrollIntoView({ behavior: "smooth" });
-    }
-     const scrollToSection2 = () => {
-      const section = document.getElementById("sobre-mi");
-      section?.scrollIntoView({ behavior: "smooth"})
   };
+  const scrollToSection2 = () => {
+    const section = document.getElementById("sobre-mi");
+    section?.scrollIntoView({ behavior: "smooth" });
+  };
+  
 
   return (
     <div className="bg-[#C6AC8F]">
@@ -79,7 +80,7 @@ function Home() {
           </div>
         </div>
       </div>
-      <section>
+      <section id="trabajos" className="flex items-center justify-center p-2 h-screen w-screen lg:h-full lg:w-full">
         <Works />
       </section>
     </div>

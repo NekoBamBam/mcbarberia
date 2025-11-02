@@ -1,42 +1,134 @@
-import logo2 from "../assets/logo2.jpg"
 import React from "react";
+import barber1 from "../assets/barber1.png";
+import barber2 from "../assets/barber2.png";
+import barber3 from "../assets/barber3.png";
+import barber4 from "../assets/barber4.png";
+import barber5 from "../assets/barber5.png";
+import barber6 from "../assets/fondo2.jpg"
+import logo from "../assets/logo2.jpg";
 
-export default function InstagramFeed() {
+const BarberInstagram = () => {
+  const posts = [
+    {
+      id: 1,
+      img: barber1,
+      link: "https://www.instagram.com/p/DOzaSsZjfA8/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      hover: "#fade #barbershop",
+    },
+    {
+      id: 2,
+      img: barber2,
+      link: "https://www.instagram.com/reel/DOmUMxnjdfi/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      hover: "#fade #barbershop",
+    },
+    {
+      id: 3,
+      img: barber3,
+      link: "https://www.instagram.com/reel/DOPQBG7jSLO/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      hover: "#fade #barberia #barbershop",
+    },
+    {
+      id: 4,
+      img: barber4,
+      link: "https://www.instagram.com/reel/DNi3IeRNS_x/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      hover: "#barberia #barbershop #fade",
+    },
+    {
+      id: 5,
+      img: barber5,
+      link: "https://www.instagram.com/reel/DMl5Z71tI1R/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+      hover: "#barbershop #barberia #taperfade",
+    },
+     {
+      id: 6,
+      img: barber6,
+      link: "https://www.instagram.com/reel/DMl5Z71tI1R/?utm_source=ig_web_copy_link&igsh=MzRlODBiNWFlZA==",
+    },
+  ];
+
   return (
-    <div className="w-full bg-[#959593] " id="trabajos">
-      <div className="max-w-3xl mx-auto w-full bg-white rounded-2xl shadow-lg p-4">
-        <div className="flex items-start gap-4 border-b pb-6 mb-6">
+    <section className="w-full lg:w-1/2 h-full lg:max-h-full bg-gray-50 border border-gray-200 rounded-md text-black p-5">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 px-6 py-2 mb-5">
+        {/* Profile picture */}
+        <div className="h-16 w-16 flex-shrink-0 rounded-full border border-gray-300 overflow-hidden">
           <img
-            src={logo2}
-            alt="MC Barbería"
-            className="w-16 h-16 rounded-full border"
+            src={logo}
+            alt=""
+            className="h-full w-full object-cover"
           />
-          <div className="flex-1">
-            <h2 className="text-lg text-black font-bold">@_mc.barberia</h2>
-            <p className="text-gray-500 text-sm">Martin Coria
-              Cuenta Principal: <a href="https://www.instagram.com/martingelp/" className="text-blue-500"> @martingelp</a>
-              </p>
-          </div>
-          <a
-            href="https://www.instagram.com/_mc.barberia/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-1 bg-blue-500 text-white rounded-lg text-sm font-medium"
-          >
-            Seguir
-          </a>
         </div>
 
-        <iframe
-          src="https://snapwidget.com/embed/1108725"
-          title="Instagram Feed"
-          className="w-full rounded-lg"
-          style={{ border: "none", overflow: "hidden", width: "100%", height: "550px" }}
-          scrolling="no"
-          frameBorder="0"
-          allowTransparency={true}
-        />
+        {/* Profile info */}
+        <div className="flex flex-col w-full items-center justify-center lg:items-start">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 lg:w-full lg:justify-between">
+            <h2 className="text-lg sm:text-xl font-semibold">
+              @salonmagnumclass
+            </h2>
+            <a
+              href="https://www.instagram.com/salonmagnumclass/"
+              target="_blank"
+              className="w-1/2 lg:w-fit cursor-pointerx text-center mt-2 sm:mt-0 bg-blue-500 hover:bg-blue-600 text-white text-sm font-medium px-4 py-1 rounded-md"
+            >
+              <button className="cursor-pointer">Seguir</button>
+            </a>
+
+            <div className="lg:hidden">
+              <p className="text-sm font-semibold text-gray-500">
+                Cuenta Principal:{" "}
+                <a
+                  href="https://www.instagram.com/martingelp/"
+                  target="_blank"
+                  className="text-blue-500"
+                >
+                  @martingelp
+                </a>
+              </p>
+            </div>
+          </div>
+          <div className="mt-3 hidden lg:block">
+            <p className="text-sm font-semibold text-gray-500">
+              Cuenta Principal:{" "}
+              <a
+                href="https://www.instagram.com/martingelp/"
+                target="_blank"
+                className="text-blue-500"
+              >
+                @martingelp
+              </a>
+            </p>
+          </div>
+        </div>
       </div>
-    </div>
+
+      <hr className="border-gray-200" />
+
+      {/* Gallery */}
+      <div className="grid grid-cols-3 gap-px bg-gray-300 mt-8">
+        {posts.map((post) => (
+          <a
+            key={post.id}
+            href={post.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative group bg-black"
+          >
+            <img
+              src={post.img}
+              alt={`Post ${post.id}`}
+              className="object-cover h-full w-full aspect-auto"
+            />
+            {/* Hover overlay */}
+            <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-90 transition flex items-center justify-center">
+              <p className="text-white text-sm font-medium tracking-wide text-center">
+                {post.hover}
+              </p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
   );
-}
+};
+
+export default BarberInstagram;
