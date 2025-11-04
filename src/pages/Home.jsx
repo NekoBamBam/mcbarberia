@@ -1,6 +1,6 @@
 import React from "react";
 import martin from "../assets/martin.jpg";
-import fondo2 from "../assets/fondo2.jpg";
+import fondo2 from "../assets/fondo3.jpg";
 import Works from "./Works";
 import "react-day-picker/dist/style.css";
 
@@ -8,11 +8,12 @@ function Home() {
   const scrollToSection = () => {
     const section = document.getElementById("turnos");
     section?.scrollIntoView({ behavior: "smooth" });
-    }
-     const scrollToSection2 = () => {
-      const section = document.getElementById("sobre-mi");
-      section?.scrollIntoView({ behavior: "smooth"})
   };
+  const scrollToSection2 = () => {
+    const section = document.getElementById("sobre-mi");
+    section?.scrollIntoView({ behavior: "smooth" });
+  };
+  
 
   return (
     <div className="bg-[#C6AC8F]">
@@ -24,7 +25,7 @@ function Home() {
         />
         <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center text-center px-4">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-imbue uppercase tracking-widest text-[#C6AC8F] md:text-[#EAE0D5] drop-shadow-lg text-center  transition hover:text-black hover:tracking-[0.3em]">
-            Martin Coria
+            Magnum Class
           </h1>
 
           <h2 className="text-xl sm:text-5xl text-white font-imbue mt-16 drop-shadow-lg">
@@ -79,7 +80,7 @@ function Home() {
           </div>
         </div>
       </div>
-      <section>
+      <section id="trabajos" className="flex items-center justify-center p-2 h-screen w-screen lg:h-full lg:w-full">
         <Works />
       </section>
     </div>
