@@ -26,6 +26,14 @@ export default function Turnos() {
     return !isNaN(n) ? n : null;
   };
 
+  const normalizar = (texto) =>
+    (texto || "")
+      .toString()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim();
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -33,23 +41,28 @@ export default function Turnos() {
         const text = await res.text();
         const lines = text.split(/\r?\n/).filter(Boolean);
         const rows = lines.map((r) => r.split(","));
-        const data = rows.slice(1);
+        const data = rows.slice(1); // omitir encabezado
 
         const semanas = {};
         data.forEach((row) => {
           const rawSemana = row[0]?.trim();
           const parsed = parseSemanaString(rawSemana);
           if (!parsed) return;
-          const semanaKey = format(startOfWeek(parsed, { weekStartsOn: 1 }), "yyyy-MM-dd");
-          const dias = row[1]?.split(";").map((d) => d.trim().toLowerCase()) || [];
-          const horarios = row
-            .slice(2)
-            .join(",")
+
+          const semanaKey = format(
+            startOfWeek(parsed, { weekStartsOn: 1 }),
+            "yyyy-MM-dd"
+          );
+          const dia = normalizar(row[1] || "");
+          const horarios = (row[2] || "")
             .split(";")
             .map((h) => h.trim())
             .filter(Boolean);
-          semanas[semanaKey] = { dias, horarios };
+
+          if (!semanas[semanaKey]) semanas[semanaKey] = {};
+          semanas[semanaKey][dia] = horarios;
         });
+
         setConfig(semanas);
         setSelectedDay(null);
         setSelectedHour(null);
@@ -61,36 +74,19 @@ export default function Turnos() {
     fetchData();
   }, []);
 
-  if (!config) return <p className="text-white text-center mt-10">Cargando disponibilidad...</p>;
-
-  const diaANumero = {
-    domingo: 0, lunes: 1, martes: 2, miercoles: 3, miércoles: 3,
-    jueves: 4, viernes: 5, sabado: 6, sábado: 6,
-  };
-
-  const normalizar = (texto) =>
-    (texto || "").toString().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  if (!config)
+    return <p className="text-white text-center mt-10">Cargando disponibilidad...</p>;
 
   const isNotAvailable = (day) => {
     const inicioSemana = startOfWeek(day, { weekStartsOn: 1 });
     const keySemana = format(inicioSemana, "yyyy-MM-dd");
     const semanaActual = config[keySemana];
+    if (!semanaActual) return true;
 
-    if (!semanaActual || !semanaActual.dias || semanaActual.dias.length === 0) {
-      return true;
-    }
-
-    const diasDisponibles = semanaActual.dias.map((d) => diaANumero[normalizar(d)]).filter((d) => d !== undefined);
-    return !diasDisponibles.includes(day.getDay());
+    const nombreDia = normalizar(format(day, "EEEE", { locale: es }));
+    const horarios = semanaActual[nombreDia];
+    return !horarios || horarios.length === 0;
   };
-
-  const horarios = (() => {
-    if (!selectedDay) return [];
-    const inicioSemana = startOfWeek(selectedDay, { weekStartsOn: 1 });
-    const keySemana = format(inicioSemana, "yyyy-MM-dd");
-    const semanaActual = config[keySemana];
-    return semanaActual ? semanaActual.horarios : [];
-  })();
 
   const handleSelect = (day) => {
     if (!day) return setSelectedDay(null);
@@ -99,20 +95,21 @@ export default function Turnos() {
     dayStart.setHours(0, 0, 0, 0);
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
-    if (dayStart < todayStart) return;
+    if (dayStart < todayStart) return; // No permitir días pasados
 
-    const inicioSemana = startOfWeek(day, { weekStartsOn: 1 });
-    const keySemana = format(inicioSemana, "yyyy-MM-dd");
-    const semanaActual = config[keySemana];
-    const diasDisponibles = semanaActual
-      ? semanaActual.dias.map((d) => diaANumero[normalizar(d)]).filter((d) => d !== undefined)
-      : [];
-    const diasNoDisponiblesParaEsteDia = [0, 1, 2, 3, 4, 5, 6].filter((d) => !diasDisponibles.includes(d));
-
-    if (diasNoDisponiblesParaEsteDia.includes(day.getDay())) return;
+    if (isNotAvailable(day)) return; // No permitir días sin horarios
 
     setSelectedDay(day);
   };
+
+  const horarios = (() => {
+    if (!selectedDay) return [];
+    const inicioSemana = startOfWeek(selectedDay, { weekStartsOn: 1 });
+    const keySemana = format(inicioSemana, "yyyy-MM-dd");
+    const semanaActual = config[keySemana];
+    const nombreDia = normalizar(format(selectedDay, "EEEE", { locale: es }));
+    return semanaActual?.[nombreDia] || [];
+  })();
 
   const generarLink = () => {
     if (!selectedDay || !selectedHour) return "#";
@@ -122,7 +119,10 @@ export default function Turnos() {
   };
 
   return (
-    <div id="turnos" className="flex flex-col items-center bg-black gap-6 p-6 text-white">
+    <div
+      id="turnos"
+      className="flex flex-col items-center bg-black gap-6 p-6 text-white"
+    >
       <h2 className="text-2xl font-bold">Turnos con Martin</h2>
 
       <div className="flex flex-col md:flex-row md:items-start md:gap-10 md:justify-center w-full max-w-5xl">
@@ -135,7 +135,11 @@ export default function Turnos() {
             notAvailable: isNotAvailable,
           }}
           modifiersStyles={{
-            notAvailable: { color: "red", opacity: 0.6, textDecoration: "line-through" },
+            notAvailable: {
+              color: "red",
+              opacity: 0.6,
+              textDecoration: "line-through",
+            },
           }}
           className="p-4 border rounded-xl shadow-md bg-white text-black mx-auto"
           styles={{

@@ -68,9 +68,7 @@ function Home() {
               SOBRE MI
             </h1>
             <p className="text-lg text-gray-600 text-white">
-              Hola! Soy Coria Nicolas, un joven y aprendiz tatuador que mi
-              interés comenzó desde muy joven dibujando y viendo revistas y
-              programas de televsión sobre el tattoo. Busco mejorar cada dia
+              Hola! Soy Coria Martin, barbero. Busco mejorar cada dia
               para brindar la maxima calidad y atención posible, no dudes en
               contactar conmigo, te espero!🙌
             </p>
