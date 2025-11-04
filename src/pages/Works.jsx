@@ -4,46 +4,48 @@ import barber2 from "../assets/barber2.png";
 import barber3 from "../assets/barber3.png";
 import barber4 from "../assets/barber4.png";
 import barber5 from "../assets/barber5.png";
-import barber6 from "../assets/fondo2.jpg";
+import barber6 from "../assets/fondo4.png";
 import logo from "../assets/logo2.jpg";
 
 const BarberInstagram = () => {
   const posts = [
     {
       id: 1,
+      img: barber6,
+      link: "https://www.instagram.com/p/DQmd7f9kbXN/?img_index=1",
+      hover: "Hoy puedo decir que pude cumplir uno de mis sueños ABRIR MI PRIMER LOCAL. Más que contento, muchas gracias a todos!"
+    },
+    {
+      id: 2,
       img: barber1,
       link: "https://www.instagram.com/p/DOzaSsZjfA8/?utm_source=ig_web_copy_link",
       hover: "#fade #barbershop",
     },
     {
-      id: 2,
+      id: 3,
       img: barber2,
       link: "https://www.instagram.com/reel/DOmUMxnjdfi/?utm_source=ig_web_copy_link",
-      hover: "#fade #barbershop",
+      hover: "#barbershop #fade",
     },
     {
-      id: 3,
+      id: 4,
       img: barber3,
       link: "https://www.instagram.com/reel/DOPQBG7jSLO/?utm_source=ig_web_copy_link",
       hover: "#fade #barberia #barbershop",
     },
     {
-      id: 4,
+      id: 5,
       img: barber4,
       link: "https://www.instagram.com/reel/DNi3IeRNS_x/?utm_source=ig_web_copy_link",
       hover: "#barberia #barbershop #fade",
     },
     {
-      id: 5,
+      id: 6,
       img: barber5,
       link: "https://www.instagram.com/reel/DMl5Z71tI1R/?utm_source=ig_web_copy_link",
       hover: "#barbershop #barberia #taperfade",
     },
-    {
-      id: 6,
-      img: barber6,
-      link: "https://www.instagram.com/reel/DMl5Z71tI1R/?utm_source=ig_web_copy_link",
-    },
+    
   ];
 
   return (

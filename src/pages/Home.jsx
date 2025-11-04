@@ -13,7 +13,7 @@ function Home() {
     const section = document.getElementById("sobre-mi");
     section?.scrollIntoView({ behavior: "smooth" });
   };
-  
+
 
   return (
     <div className="bg-gray-200">
@@ -24,7 +24,7 @@ function Home() {
           alt=""
         />
         <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center text-center px-4">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-imbue uppercase tracking-widest text-[#C6AC8F] md:text-[#EAE0D5] drop-shadow-lg text-center  transition hover:text-black hover:tracking-[0.3em]">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-imbue uppercase tracking-widest text-black md:text-[#9c9c9b] drop-shadow-lg text-center  transition hover:text-black hover:tracking-[0.3em]">
             Magnum Class
           </h1>
 
@@ -68,9 +68,7 @@ function Home() {
               SOBRE MI
             </h1>
             <p className="text-lg text-gray-600 text-white">
-              Hola! Soy Coria Martin, barbero. Busco mejorar cada dia
-              para brindar la maxima calidad y atención posible, no dudes en
-              contactar conmigo, te espero!🙌
+              Soy un barbero apasionado y dedicado, con habilidades refinadas en cortes de cabello y un compromiso inquebrantable con la calidad. Mi pasión por la barbería se refleja en cada corte, cada diseño y cada sonrisa de satisfacción de mis clientes. Me esfuerzo por crear experiencias personalizadas y únicas, siempre buscando innovar y mejorar. Mi objetivo es hacer que cada cliente se sienta confiado y satisfecho con su apariencia. ¡Bienvenido a mi barbería!
             </p>
           </div>
           <div className="md:w-1/2 flex justify-center">
@@ -78,7 +76,7 @@ function Home() {
           </div>
         </div>
       </div>
-      <section id="trabajos" className="flex items-center justify-center p-2 h-screen w-screen lg:h-full lg:w-full">
+      <section id="trabajos" className="flex items-center justify-center p-2 h-screen w-screen lg:h-full lg:w-full bg-[#585856] ">
         <Works />
       </section>
     </div>

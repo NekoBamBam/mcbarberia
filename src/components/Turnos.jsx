@@ -114,7 +114,7 @@ export default function Turnos() {
   const generarLink = () => {
     if (!selectedDay || !selectedHour) return "#";
     const fecha = format(selectedDay, "dd/MM/yyyy");
-    const mensaje = `Hola, quiero un turno con Martin para el día ${fecha} a las ${selectedHour}`;
+    const mensaje = `Hola Martin! Quiero un turno para el día ${fecha} a las ${selectedHour}`;
     return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
   };
 
@@ -123,9 +123,9 @@ export default function Turnos() {
       id="turnos"
       className="flex flex-col items-center bg-black gap-6 p-6 text-white"
     >
-      <h2 className="text-2xl font-bold">Turnos con Martin</h2>
+      <h2 className="text-2xl font-bold">Turnos</h2>
 
-      <div className="flex flex-col md:flex-row md:items-start md:gap-10 md:justify-center w-full max-w-5xl">
+      <div className="flex flex-col md:flex-row md:items-start md:gap-10 md:items-center w-full max-w-5xl">
         <DayPicker
           mode="single"
           selected={selectedDay}
