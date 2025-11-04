@@ -47,7 +47,7 @@ const BarberInstagram = () => {
   ];
 
   return (
-  <section className="w-full md:w-3/4 lg:w-2/3 mx-auto bg-gray-50 border border-gray-200 rounded-xl text-black p-5 shadow-md">
+    <section className="w-full md:w-3/4 lg:w-2/3 mx-auto bg-gray-50 border border-gray-200 rounded-xl text-black p-5 shadow-md">
 
       {/* Header */}
       <div className="flex flex-col items-center text-center sm:flex-row sm:text-left sm:items-center sm:justify-between gap-4 px-6 py-5">
@@ -86,7 +86,7 @@ const BarberInstagram = () => {
       <hr className="border-gray-200" />
 
       {/* Gallery */}
-     <div className="grid grid-cols-3 gap-1 bg-gray-100 pb-4 rounded-b-xl">
+      <div className="grid grid-cols-3 gap-1 bg-gray-100 pb-4 rounded-b-xl">
         {posts.map((post) => (
           <a
             key={post.id}
