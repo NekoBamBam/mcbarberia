@@ -9,12 +9,12 @@ function Footer() {
     <div className="bg-[#5E503F]">
       <Turnos/>
       <section className="bg-[#EAE0D5] h-32 flex items-center justify-center text-sm relative">
-        <p className="text-black">© CORIA MARTIN BARBERIA 2025</p>
+        <p className="text-black">© MAGNUM CLASS BARBER 2025</p>
         <a
           href="https://github.com/NekoBamBam"
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute bottom-2 left-4 text-black hover:underline"
+          className="absolute bottom-2 text-xs left-4 text-black hover:underline"
         >
           Coria Franco Nicolas
         </a>
@@ -22,7 +22,7 @@ function Footer() {
           href="https://github.com/Lawcito"
           target="_blank"
           rel="noopener noreferrer"
-          className="absolute bottom-2 right-4 text-black hover:underline"
+          className="absolute bottom-2 text-xs right-4 text-black hover:underline"
         >
           Negrete Emir Alejo
         </a>

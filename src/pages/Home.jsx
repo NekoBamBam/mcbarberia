@@ -1,6 +1,6 @@
 import React from "react";
 import martin from "../assets/martin.jpg";
-import fondo2 from "../assets/fondo2.jpg";
+import fondo2 from "../assets/fondo3.jpg";
 import Works from "./Works";
 import "react-day-picker/dist/style.css";
 
@@ -16,7 +16,7 @@ function Home() {
   
 
   return (
-    <div className="bg-[#C6AC8F]">
+    <div className="bg-gray-200">
       <div className="relative min-h-screen ">
         <img
           className="h-screen w-full object-cover opacity-75"
@@ -25,7 +25,7 @@ function Home() {
         />
         <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center text-center px-4">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-imbue uppercase tracking-widest text-[#C6AC8F] md:text-[#EAE0D5] drop-shadow-lg text-center  transition hover:text-black hover:tracking-[0.3em]">
-            Martin Coria
+            Magnum Class
           </h1>
 
           <h2 className="text-xl sm:text-5xl text-white font-imbue mt-16 drop-shadow-lg">
@@ -68,9 +68,7 @@ function Home() {
               SOBRE MI
             </h1>
             <p className="text-lg text-gray-600 text-white">
-              Hola! Soy Coria Nicolas, un joven y aprendiz tatuador que mi
-              interés comenzó desde muy joven dibujando y viendo revistas y
-              programas de televsión sobre el tattoo. Busco mejorar cada dia
+              Hola! Soy Coria Martin, barbero. Busco mejorar cada dia
               para brindar la maxima calidad y atención posible, no dudes en
               contactar conmigo, te espero!🙌
             </p>
