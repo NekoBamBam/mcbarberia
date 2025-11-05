@@ -24,9 +24,10 @@ function Home() {
           alt=""
         />
         <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center text-center px-4">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-imbue uppercase tracking-widest text-black md:text-[#9c9c9b] drop-shadow-lg text-center  transition hover:text-black hover:tracking-[0.3em]">
+          <h1 className="text-6xl font-imbue uppercase tracking-widest text-[#222] text-center animate-zoom-blur">
             Magnum Class
           </h1>
+
 
           <h2 className="text-xl sm:text-5xl text-white font-imbue mt-16 drop-shadow-lg">
             TURNOS DISPONIBLES!
