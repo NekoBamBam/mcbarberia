@@ -49,7 +49,7 @@ export default function Navbar() {
 
       {/* Menú abierto celular */}
       {open && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-[#EAE0D5] shadow-md flex flex-col items-center space-y-4 py-4">
+        <div className="md:hidden absolute top-full left-0 w-full bg-[#dededc] shadow-md flex flex-col items-center space-y-4 py-4">
           <button
             onClick={() => scrollToSection("sobre-mi")}
             className="text-black"
