@@ -30,13 +30,13 @@ function Home() {
 
 
           <h2 className="text-xl sm:text-5xl text-white font-imbue mt-16 drop-shadow-lg">
-            TURNOS DISPONIBLES!
+            DEDICACION Y COMPROMISO!
           </h2>
           <button
             onClick={scrollToSection}
             className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition duration-300 text-base sm:text-lg mt-16"
           >
-            Ver más
+            Turnos
           </button>
           <div onClick={scrollToSection2} className="mt-10 cursor-pointer">
             <svg
@@ -69,7 +69,13 @@ function Home() {
               SOBRE MI
             </h1>
             <p className="text-lg text-gray-600 text-white">
-              Soy un barbero apasionado y dedicado, con habilidades refinadas en cortes de cabello y un compromiso inquebrantable con la calidad. Mi pasión por la barbería se refleja en cada corte, cada diseño y cada sonrisa de satisfacción de mis clientes. Me esfuerzo por crear experiencias personalizadas y únicas, siempre buscando innovar y mejorar. Mi objetivo es hacer que cada cliente se sienta confiado y satisfecho con su apariencia. ¡Bienvenido a mi barbería!
+              Soy un barbero apasionado y dedicado,
+               con habilidades refinadas en cortes de cabello y un <a className="text-cyan-500"> compromiso inquebrantable </a>
+                con la calidad. Mi pasión por la barbería se refleja en cada corte, cada diseño
+                 y cada sonrisa de satisfacción de mis clientes. Me esfuerzo por crear experiencias
+                  personalizadas y únicas, siempre buscando innovar y mejorar. Mi objetivo es hacer
+                   que cada cliente se sienta confiado y satisfecho con su apariencia. 
+                  <a className="text-cyan-500" > ¡Bienvenido a mi barbería!</a>
             </p>
           </div>
           <div className="md:w-1/2 flex justify-center">

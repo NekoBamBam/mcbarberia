@@ -1,0 +1,16 @@
+correccion seba feltes
+
+crear button para subir en mobile
+disminución footer - listo
+trabajar paddings
+magnus class principal y cambiar pointer
+cambiar button a "reservar ahora" cursor pointer
+pointer navbar 
+corrección foto balanceada/peso
+subrayar palabras claves sobre mi - chill
+button SEGUIR cursor pointer, mas grande
++1000 = intentar hover con movimiento ig
+mas border radius a fotos ig
+
+
+
