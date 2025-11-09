@@ -125,67 +125,70 @@ export default function Turnos() {
     >
       <h2 className="text-2xl font-bold">Turnos</h2>
 
-      <div className="flex flex-col md:flex-row md:items-start md:gap-10 md:items-center w-full max-w-5xl">
-        <DayPicker
-          mode="single"
-          selected={selectedDay}
-          onSelect={handleSelect}
-          disabled={[{ before: new Date() }]}
-          modifiers={{
-            notAvailable: isNotAvailable,
-          }}
-          modifiersStyles={{
-            notAvailable: {
-              color: "red",
-              opacity: 0.6,
-              textDecoration: "line-through",
-            },
-          }}
-          className="p-4 border rounded-xl shadow-md bg-white text-black mx-auto"
-          styles={{
-            caption: { color: "black", fontWeight: "bold" },
-            head: { color: "black" },
-            day: { color: "black" },
-            day_selected: { backgroundColor: "#000", color: "#fff" },
-            day_disabled: { color: "#ccc" },
-          }}
-          locale={es}
-        />
+     <div className="flex flex-col md:flex-row md:items-start md:gap-10 md:items-center w-full max-w-5xl justify-center">
+  <div className="flex justify-center w-full md:w-auto">
+    <DayPicker
+      mode="single"
+      selected={selectedDay}
+      onSelect={handleSelect}
+      disabled={[{ before: new Date() }]}
+      modifiers={{
+        notAvailable: isNotAvailable,
+      }}
+      modifiersStyles={{
+        notAvailable: {
+          color: "red",
+          opacity: 0.6,
+          textDecoration: "line-through",
+        },
+      }}
+      className="p-4 border rounded-xl shadow-md bg-white text-black"
+      styles={{
+        caption: { color: "black", fontWeight: "bold" },
+        head: { color: "black" },
+        day: { color: "black" },
+        day_selected: { backgroundColor: "#000", color: "#fff" },
+        day_disabled: { color: "#ccc" },
+      }}
+      locale={es}
+    />
+  </div>
 
-        {selectedDay && horarios.length > 0 && (
-          <div className="mt-6 md:mt-0 w-full md:w-1/2 max-w-md">
-            <h3 className="text-xl font-bold mb-4 text-center md:text-left">
-              Horarios disponibles para {format(selectedDay, "dd/MM/yyyy")}
-            </h3>
-            <div className="grid grid-cols-3 gap-3">
-              {horarios.map((hora) => (
-                <button
-                  key={hora}
-                  onClick={() => setSelectedHour(hora)}
-                  className={`p-3 rounded-xl border transition ${
-                    selectedHour === hora
-                      ? "bg-black text-white"
-                      : "bg-white text-black hover:bg-gray-100"
-                  }`}
-                >
-                  {hora}
-                </button>
-              ))}
-            </div>
-
-            {selectedHour && (
-              <a
-                href={generarLink()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-6 block text-center px-6 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700"
-              >
-                Enviar turno por WhatsApp
-              </a>
-            )}
-          </div>
-        )}
+  {selectedDay && horarios.length > 0 && (
+    <div className="mt-6 md:mt-0 w-full md:w-1/2 max-w-md">
+      <h3 className="text-xl font-bold mb-4 text-center md:text-left">
+        Horarios disponibles para {format(selectedDay, "dd/MM/yyyy")}
+      </h3>
+      <div className="grid grid-cols-3 gap-3">
+        {horarios.map((hora) => (
+          <button
+            key={hora}
+            onClick={() => setSelectedHour(hora)}
+            className={`p-3 rounded-xl border transition ${
+              selectedHour === hora
+                ? "bg-black text-white"
+                : "bg-white text-black hover:bg-gray-100"
+            }`}
+          >
+            {hora}
+          </button>
+        ))}
       </div>
+
+      {selectedHour && (
+        <a
+          href={generarLink()}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 block text-center px-6 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700"
+        >
+          Enviar turno por WhatsApp
+        </a>
+      )}
+    </div>
+  )}
+</div>
+
     </div>
   );
 }
