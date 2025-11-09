@@ -29,7 +29,7 @@ function Home() {
           </h1>
 
 
-          <h2 className="text-xl sm:text-5xl text-white font-imbue mt-16 drop-shadow-lg">
+          <h2 className="text-xl sm:text-4xl text-white font-imbue mt-16 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
             DEDICACION Y COMPROMISO!
           </h2>
           <button
@@ -70,9 +70,9 @@ function Home() {
             </h1>
             <p className="text-lg text-gray-600 text-white">
               Soy un barbero apasionado y dedicado,
-               con habilidades refinadas en cortes de cabello y un <a className="text-cyan-500"> compromiso inquebrantable </a>
+               con habilidades refinadas en cortes de cabello y un <a className="text-cyan-500"> Compromiso Inquebrantable </a>
                 con la calidad. Mi pasión por la barbería se refleja en cada corte, cada diseño
-                 y cada sonrisa de satisfacción de mis clientes. Me esfuerzo por crear experiencias
+                 y cada sonrisa de satisfacción de mis clientes. Me esfuerzo por <a className="text-cyan-500"> Crear Experiencias </a>
                   personalizadas y únicas, siempre buscando innovar y mejorar. Mi objetivo es hacer
                    que cada cliente se sienta confiado y satisfecho con su apariencia. 
                   <a className="text-cyan-500" > ¡Bienvenido a mi barbería!</a>
