@@ -1,5 +1,6 @@
 import React from "react";
 import martin from "../assets/martin.jpg";
+import martin2 from "../assets/martin2.png"
 import fondo2 from "../assets/fondo3.jpg";
 import Works from "./Works";
 import "react-day-picker/dist/style.css";
@@ -24,17 +25,17 @@ function Home() {
           alt=""
         />
         <div className="absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center text-center px-4">
-          <h1 className="text-6xl font-imbue uppercase tracking-widest text-[#222] text-center animate-zoom-blur">
+          <h1 className="text-6xl font-imbue cursor-default uppercase tracking-widest text-[#222] text-center animate-zoom-blur">
             Magnum Class
           </h1>
 
 
-          <h2 className="text-xl sm:text-4xl text-white font-imbue mt-16 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
+          <h2 className="text-xl sm:text-4xl cursor-default text-white font-imbue mt-16 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">
             DEDICACION Y COMPROMISO!
           </h2>
           <button
             onClick={scrollToSection}
-            className="bg-gray-600 text-white px-6 py-2 rounded-lg hover:bg-gray-700 transition duration-300 text-base sm:text-lg mt-16"
+            className="bg-gray-600 text-white cursor-pointer px-6 py-2 rounded-lg hover:bg-gray-700 transition duration-300 text-base sm:text-lg mt-16"
           >
             Turnos
           </button>
@@ -70,16 +71,27 @@ function Home() {
             </h1>
             <p className="text-lg text-gray-600 text-white">
               Soy un barbero apasionado y dedicado,
-               con habilidades refinadas en cortes de cabello y un <a className="text-cyan-500"> Compromiso Inquebrantable </a>
-                con la calidad. Mi pasión por la barbería se refleja en cada corte, cada diseño
-                 y cada sonrisa de satisfacción de mis clientes. Me esfuerzo por <a className="text-cyan-500"> Crear Experiencias </a>
-                  personalizadas y únicas, siempre buscando innovar y mejorar. Mi objetivo es hacer
-                   que cada cliente se sienta confiado y satisfecho con su apariencia. 
-                  <a className="text-cyan-500" > ¡Bienvenido a mi barbería!</a>
+              con habilidades refinadas en cortes de cabello y un <a className="text-cyan-500"> Compromiso Inquebrantable </a>
+              con la calidad. Mi pasión por la barbería se refleja en cada corte, cada diseño
+              y cada sonrisa de satisfacción de mis clientes. Me esfuerzo por <a className="text-cyan-500"> Crear Experiencias </a>
+              personalizadas y únicas, siempre buscando innovar y mejorar. Mi objetivo es hacer
+              que cada cliente se sienta confiado y satisfecho con su apariencia.
+              <a className="text-cyan-500" > ¡Bienvenido a mi barbería!</a>
             </p>
           </div>
           <div className="md:w-1/2 flex justify-center">
-            <img className="rounded-lg h-64 w-64" src={martin} alt="" />
+            <div className="relative group h-64 w-64 rounded-lg overflow-hidden">
+              <img
+                src={martin}
+                alt="martin"
+                className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500 opacity-100 group-hover:opacity-0"
+              />
+              <img
+                src={martin2}
+                alt="martin2"
+                className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
+              />
+            </div>
           </div>
         </div>
       </div>

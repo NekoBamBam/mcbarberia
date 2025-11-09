@@ -79,7 +79,7 @@ const BarberInstagram = () => {
           target="_blank"
           className="w-full sm:w-auto"
         >
-          <button className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-5 py-2 rounded-md transition">
+          <button className="w-full cursor-pointer sm:w-auto bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold px-5 py-2 rounded-md transition">
             Seguir
           </button>
         </a>
@@ -88,19 +88,19 @@ const BarberInstagram = () => {
       <hr className="border-gray-200" />
 
       {/* Gallery */}
-      <div className="grid grid-cols-3 gap-1 bg-gray-100 pb-4 rounded-b-xl">
+      <div className="grid grid-cols-3  gap-1 bg-gray-100 pb-4 rounded-b-xl">
         {posts.map((post) => (
           <a
             key={post.id}
             href={post.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="relative group aspect-auto bg-black"
+            className="relative group  aspect-auto bg-white"
           >
             <img
               src={post.img}
               alt={`Post ${post.id}`}
-              className="h-full w-full object-cover"
+              className="h-full w-full rounded-xl object-cover"
             />
             <div className="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-90 transition flex items-center justify-center">
               <p className="text-white text-xs font-medium text-center px-2">

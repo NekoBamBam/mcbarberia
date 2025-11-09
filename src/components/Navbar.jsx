@@ -21,19 +21,19 @@ export default function Navbar() {
         <div className="hidden md:flex space-x-8 absolute justify-center w-full">
           <button
             onClick={() => scrollToSection("sobre-mi")}
-            className="text-black hover:text-red-500 font-serif"
+            className="text-black cursor-pointer hover:text-red-500 font-serif"
           >
             SOBRE MI
           </button>
           <button
             onClick={() => scrollToSection("trabajos")}
-            className="text-black hover:text-red-500 font-serif"
+            className="text-black cursor-pointer hover:text-red-500 font-serif"
           >
             TRABAJOS
           </button>
           <button
             onClick={() => scrollToSection("turnos")}
-            className="text-black hover:text-red-500 font-serif"
+            className="text-black cursor-pointer hover:text-red-500 font-serif"
           >
             TURNOS
           </button>
