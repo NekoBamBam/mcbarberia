@@ -112,11 +112,15 @@ export default function Turnos() {
   })();
 
   const generarLink = () => {
-    if (!selectedDay || !selectedHour) return "#";
-    const fecha = format(selectedDay, "dd/MM/yyyy");
-    const mensaje = `Hola Martin! Quiero un turno para el día ${fecha} a las ${selectedHour}`;
-    return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
-  };
+  if (!selectedDay || !selectedHour) return "#";
+
+  const diaSemana = format(selectedDay, "EEEE", { locale: es }); // martes
+  const fecha = format(selectedDay, "dd/MM", { locale: es }); // 11/11
+  const mensaje = `Hola Martin! Quiero un turno para el ${diaSemana} ${fecha} a las ${selectedHour}`;
+  
+  return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
+};
+
 
   return (
     <div

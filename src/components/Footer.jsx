@@ -9,7 +9,7 @@ function Footer() {
     <div className="bg-[#5E503F]">
       <Turnos/>
       <section className="bg-[#3e3e3c] h-12 flex items-center justify-center text-sm relative">
-        <p className="text-white absolute text-xs top-0">© MAGNUM CLASS BARBER 2025</p>
+        <p className="text-white absolute text-xs top-0">© MAGNUM CLASS SALON 2025</p>
         <a
           href="https://github.com/NekoBamBam"
           target="_blank"
