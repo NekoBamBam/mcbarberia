@@ -1,20 +1,26 @@
 import "./App.css";
 import React from "react";
-import { BrowserRouter, HashRouter, Route, Routes } from "react-router";
+import { HashRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Layout from "./layouts/Layout";
+import AdminPanel from "./components/AdminPanel";
 
 function App() {
   return (
     <HashRouter>
       <Routes>
-      <Route path="/" element={<Layout/>}>
-          <Route index element={<Home />} />
-      </Route>
-      </Routes>
-    </HashRouter> 
-  );
 
+        {/* HOME */}
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+        </Route>
+
+        {/* PANEL ADMIN */}
+        <Route path="/admin" element={<AdminPanel />} />
+
+      </Routes>
+    </HashRouter>
+  );
 }
 
 export default App;
