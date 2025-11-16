@@ -15,9 +15,11 @@ function Home() {
     section?.scrollIntoView({ behavior: "smooth" });
   };
 
+  console.log("🔥 SE ESTÁ RENDERIZANDO HOME");
 
   return (
     <div className="bg-gray-200">
+
       <div className="relative min-h-screen ">
         <img
           className="h-screen w-full object-cover opacity-75"
