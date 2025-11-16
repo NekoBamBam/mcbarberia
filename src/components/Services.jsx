@@ -15,7 +15,7 @@ const services = [
   },
   {
     icon: <Bath size={40} className="text-cyan-400" />,
-    title: "Afeitado Italiano (Clásico)",
+    title: "Lavado de cabeza",
     description:
       "Afeitado italiano con toallas caliente y fría, aceites aromáticos y productos para el cuidado de la piel.",
   },

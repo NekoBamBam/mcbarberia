@@ -65,10 +65,7 @@ export default function Turnos() {
 
   // 4) Manejar selección de día
   const handleSelect = (day) => {
-    if (!day) {
-      setSelectedDay(null);
-      return;
-    }
+    if (!day) return setSelectedDay(null);
 
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
@@ -79,13 +76,15 @@ export default function Turnos() {
     if (fecha < hoy) return;
 
     const fechaISO = format(day, "yyyy-MM-dd");
-    const existe = availability?.find((d) => d.fecha === fechaISO);
+    const disp = availability?.find((d) => d.fecha === fechaISO);
 
-    if (!existe) return;
+    // ❗ si NO tiene horarios -> no es clickeable
+    if (!disp || !disp.horarios || disp.horarios.length === 0) return;
 
-    setSelectedHour(null); // resetear selección de hora al cambiar día
+    setSelectedHour(null);
     setSelectedDay(day);
   };
+
 
   // 5) Horarios disponibles (idéntico)
   const horarios = (() => {
@@ -94,6 +93,13 @@ export default function Turnos() {
     const disponibilidad = availability?.find((d) => d.fecha === fechaISO);
     return disponibilidad ? disponibilidad.horarios : [];
   })();
+
+  const isDayAvailable = (day) => {
+    const fechaISO = format(day, "yyyy-MM-dd");
+    const d = availability?.find((x) => x.fecha === fechaISO);
+    return d && d.horarios && d.horarios.length > 0;
+  };
+
 
   return (
     <div id="turnos" className="flex flex-col items-center bg-black gap-6 p-6 text-white">
@@ -113,13 +119,13 @@ export default function Turnos() {
               onSelect={handleSelect}
               locale={es}
               className="p-4 border rounded-xl shadow-md bg-white text-black"
+
+              disabled={(day) => !isDayAvailable(day)}
+
               modifiers={{
-                noDisponible: (day) => {
-                  const fechaISO = format(day, "yyyy-MM-dd");
-                  const existe = availability?.some((d) => d.fecha === fechaISO);
-                  return !existe;
-                },
+                noDisponible: (day) => !isDayAvailable(day),
               }}
+
               modifiersStyles={{
                 noDisponible: {
                   color: "red",
@@ -128,6 +134,7 @@ export default function Turnos() {
                 },
               }}
             />
+
           </div>
 
           {/* PANEL DE HORARIOS con animación y ref para scrollear */}

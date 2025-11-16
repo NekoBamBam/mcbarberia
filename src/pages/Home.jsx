@@ -4,6 +4,7 @@ import martin2 from "../assets/martin2.png"
 import fondo2 from "../assets/fondo3.jpg";
 import Works from "./Works";
 import "react-day-picker/dist/style.css";
+import Services from "../components/Services";
 
 function Home() {
   const scrollToSection = () => {
@@ -99,6 +100,9 @@ function Home() {
       </div>
       <section id="trabajos" className="flex items-center justify-center p-2 h-screen w-screen lg:h-full lg:w-full bg-[#585856] ">
         <Works />
+      </section>
+      <section>
+        <Services/>
       </section>
     </div>
   );
