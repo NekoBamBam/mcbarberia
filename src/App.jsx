@@ -4,6 +4,7 @@ import { HashRouter, Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Layout from "./layouts/Layout";
 import AdminPanel from "./components/AdminPanel";
+import AdminLogin from "./components/AdminLogin";
 
 function App() {
   return (
@@ -17,7 +18,7 @@ function App() {
 
         {/* PANEL ADMIN */}
         <Route path="/admin" element={<AdminPanel />} />
-
+        <Route path="/admin-login" element={<AdminLogin />} />
       </Routes>
     </HashRouter>
   );

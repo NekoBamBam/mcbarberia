@@ -19,11 +19,18 @@ export default function Navbar() {
     setTapCount((prev) => {
       const newCount = prev + 1;
 
-      if (newCount >= 3) {
+     if (newCount >= 3) {
   setTimeout(() => {
-    navigate("/admin");
+    // Si ya inició sesión, va directo
+    if (localStorage.getItem("isAdmin") === "true") {
+      navigate("/admin");
+    } else {
+      // Si no está logueado, va al login
+      navigate("/admin-login");
+    }
   }, 0);
 }
+
 
 
       return newCount;

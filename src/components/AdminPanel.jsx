@@ -50,16 +50,23 @@ export default function AdminPanel() {
 
     setLoading(true);
 
+    // Primero, buscamos si ya existe
+    const { data: existe } = await supabase
+      .from("availability")
+      .select("id")
+      .eq("fecha", fecha)
+      .maybeSingle();
+
     let result;
 
-    if (editingId) {
-      // 👉 UPDATE existente
+    if (existe) {
+      // 👉 UPDATE
       result = await supabase
         .from("availability")
-        .update({ fecha, horarios })
-        .eq("id", editingId);
+        .update({ horarios })
+        .eq("id", existe.id);
     } else {
-      // 👉 INSERT nueva
+      // 👉 INSERT
       result = await supabase
         .from("availability")
         .insert([{ fecha, horarios }]);
@@ -76,6 +83,7 @@ export default function AdminPanel() {
 
     setLoading(false);
   }
+
 
   // Resetear formulario
   function resetForm() {
