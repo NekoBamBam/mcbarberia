@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import HorarioItem from "./HorarioItem";
 
 export default function AdminPanel() {
   const [fecha, setFecha] = useState("");
@@ -12,6 +13,48 @@ export default function AdminPanel() {
   useEffect(() => {
     cargarFechas();
   }, []);
+
+  async function ocuparHorarioManual(fecha, hora) {
+    const { data: existe } = await supabase
+      .from("reservations")
+      .select("id")
+      .eq("fecha", fecha)
+      .eq("hora", hora)
+      .maybeSingle();
+
+    if (existe) {
+      alert("Ese horario ya está marcado como ocupado.");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("reservations")
+      .insert([
+        { fecha, hora, nombre: "OCUPADO MANUAL", telefono: "" }
+      ]);
+
+    if (error) {
+      alert("Error al marcar ocupado.");
+      return;
+    }
+
+    alert("Horario marcado como ocupado.");
+  }
+
+  async function liberarHorarioManual(fecha, hora) {
+    const { error } = await supabase
+      .from("reservations")
+      .delete()
+      .eq("fecha", fecha)
+      .eq("hora", hora);
+
+    if (error) {
+      alert("Error al liberar horario.");
+      return;
+    }
+
+    alert("Horario liberado.");
+  }
 
   // Cargar listado de fechas ya guardadas
   async function cargarFechas() {
@@ -128,18 +171,14 @@ export default function AdminPanel() {
           <p className="font-semibold">Horarios para el día:</p>
           <div className="flex flex-wrap gap-2 mt-1">
             {horarios.map((h) => (
-              <div
+              <HorarioItem
                 key={h}
-                className="px-3 py-1 bg-gray-700 rounded flex items-center"
-              >
-                {h}
-                <button
-                  className="ml-2 text-red-400"
-                  onClick={() => eliminarHorario(h)}
-                >
-                  ✕
-                </button>
-              </div>
+                fecha={fecha}
+                hora={h}
+                onEliminar={eliminarHorario}
+                onOcupar={ocuparHorarioManual}
+                onLiberar={liberarHorarioManual}
+              />
             ))}
           </div>
         </div>

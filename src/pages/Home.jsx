@@ -5,6 +5,8 @@ import fondo2 from "../assets/fondo3.jpg";
 import Works from "./Works";
 import "react-day-picker/dist/style.css";
 import Services from "../components/Services";
+import Maps from "../components/Map";
+
 
 function Home() {
   const scrollToSection = () => {
@@ -104,6 +106,12 @@ function Home() {
       <section>
         <Services/>
       </section>
+       <div className="flex flex-col items-center px-4 text-white">
+      <h2 className="text-2xl font-bold mt-6">Dónde estamos</h2>
+      <p className="text-sm opacity-70">MC Barbería – La Plata</p>
+
+      <Maps />
+    </div>
     </div>
   );
 }
