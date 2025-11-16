@@ -3,14 +3,14 @@ correccion seba feltes
 crear button para subir en mobile
 disminución footer LISTO
 trabajar paddings
-magnus class principal y cambiar pointer
-cambiar button a "reservar ahora" cursor pointer CASI LISTO
-pointer navbar 
+magnus class principal y cambiar pointer  LISTO
+cambiar button a "reservar ahora" cursor pointer  LISTO
+pointer navbar LISTO
 corrección foto balanceada/peso
-subrayar palabras claves sobre mi LISTO
-button SEGUIR cursor pointer, mas grande
+subrayar palabras claves sobre mi  LISTO
+button SEGUIR cursor pointer, mas grande CREO QUE LISTO
 +1000 = intentar hover con movimiento ig
-mas border radius a fotos ig
+mas border radius a fotos ig  CREO QUE LISTO
 
 
 

@@ -6,7 +6,6 @@ import Works from "./Works";
 import "react-day-picker/dist/style.css";
 import Services from "../components/Services";
 
-
 function Home() {
   const scrollToSection = () => {
     const section = document.getElementById("turnos");

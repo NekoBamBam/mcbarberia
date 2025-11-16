@@ -154,7 +154,7 @@ export default function Turnos() {
                   Horarios para {format(selectedDay, "dd/MM/yyyy")}
                 </h3>
 
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid  grid-cols-3 gap-3">
                   {horarios.map((hora) => {
                     const estaOcupado = ocupados.includes(hora);
 
@@ -163,7 +163,7 @@ export default function Turnos() {
                         key={hora}
                         onClick={() => !estaOcupado && setSelectedHour(hora)}
                         disabled={estaOcupado}
-                        className={`p-3 rounded-xl border transition 
+                        className={`p-3 cursor-pointer rounded-xl border transition 
                           ${estaOcupado
                             ? "bg-red-500 text-white opacity-70 cursor-not-allowed"
                             : selectedHour === hora
@@ -201,7 +201,7 @@ export default function Turnos() {
                       const link = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
                       window.open(link, "_blank");
                     }}
-                    className="mt-6 w-full text-center px-6 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700"
+                    className="mt-6 w-full cursor-pointer text-center px-6 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700"
                   >
                     Reservar turno
                   </button>
@@ -212,6 +212,9 @@ export default function Turnos() {
               <div className="p-4 bg-white text-black rounded-xl">
                 <p className="font-medium mb-2">Seleccioná una fecha para ver horarios</p>
                 <p className="text-sm">Tocá un día en el calendario y los horarios disponibles aparecerán aquí.</p>
+                {/* <p className="text-sm"><a className="text-lg text-red-500"> ATENCION!</a> Pedimos compromiso con la puntualidad de los turnos, en caso de no avisar con tiempo
+                  la ausencia, se cobrará la totalidad del corte.
+                </p> */}
               </div>
             )}
           </div>

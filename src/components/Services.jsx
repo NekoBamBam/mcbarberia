@@ -5,19 +5,19 @@ const services = [
   {
     icon: <Scissors size={40} className="text-cyan-400" />,
     title: "Corte de cabello",
-    description: "Corte de cabello con lavado incluído y terminaciones a navaja.",
+    description: "Estilo personalizado con terminaciones precisas para un look impecable.",
   },
   {
     icon: <Sparkles size={40} className="text-cyan-400" />,
     title: "Arreglo de barba",
     description:
-      "Arreglo de barba con fomento caliente y frío. Terminaciones a navaja y productos para el cuidado de tu piel y barba.",
+      "Arreglo de barba. Terminaciones a navaja y productos para el cuidado de tu piel y barba.",
   },
   {
     icon: <Bath size={40} className="text-cyan-400" />,
     title: "Lavado de cabeza",
     description:
-      "Afeitado italiano con toallas caliente y fría, aceites aromáticos y productos para el cuidado de la piel.",
+      "Limpieza profunda y revitalizante para un cabello sano y fresco.",
   },
 ];
 
