@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Layout from "./layouts/Layout";
 import AdminPanel from "./components/AdminPanel";
 import AdminLogin from "./components/AdminLogin";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -17,7 +18,16 @@ function App() {
         </Route>
 
         {/* PANEL ADMIN */}
-        <Route path="/admin" element={<AdminPanel />} />
+        <Route 
+          path="/admin" 
+          element={
+            <ProtectedRoute>
+              <AdminPanel />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/*LOGIN ADMIN */}
         <Route path="/admin-login" element={<AdminLogin />} />
       </Routes>
     </HashRouter>

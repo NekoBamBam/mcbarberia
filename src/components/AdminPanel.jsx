@@ -190,6 +190,15 @@ export default function AdminPanel() {
       >
         Salir del modo Admin
       </button>
+      <button
+        onClick={() => {
+          localStorage.removeItem("isAdmin");
+          window.location.href = "/#/admin-login";
+        }}
+        className="bg-red-500 px-4 py-2 rounded"
+      >
+        Cerrar sesión
+      </button>
 
     </div>
   );
