@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+/* import React, { useEffect, useRef } from "react";
 
 export default function Maps() {
   const mapRef = useRef(null);
@@ -70,3 +70,4 @@ export default function Maps() {
     </div>
   );
 }
+ */

@@ -1,7 +1,14 @@
-import React,{ useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
-export default function HorarioItem({ fecha, hora, onEliminar, onOcupar, onLiberar }) {
+export default function HorarioItem({
+  fecha,
+  hora,
+  onEliminar,
+  onOcupar,
+  onLiberar,
+  refresh
+}) {
   const [ocupado, setOcupado] = useState(false);
 
   useEffect(() => {
@@ -11,12 +18,13 @@ export default function HorarioItem({ fecha, hora, onEliminar, onOcupar, onLiber
         .select("id")
         .eq("fecha", fecha)
         .eq("hora", hora)
+        .limit(1)
         .maybeSingle();
 
       setOcupado(!!data);
     }
     check();
-  }, [fecha, hora]);
+  }, [fecha, hora, refresh]);
 
   return (
     <div
@@ -33,11 +41,17 @@ export default function HorarioItem({ fecha, hora, onEliminar, onOcupar, onLiber
       </button>
 
       {!ocupado ? (
-        <button className="text-yellow-400" onClick={() => onOcupar(fecha, hora)}>
+        <button
+          className="text-yellow-400"
+          onClick={() => onOcupar(fecha, hora)}
+        >
           Ocupar
         </button>
       ) : (
-        <button className="text-green-400" onClick={() => onLiberar(fecha, hora)}>
+        <button
+          className="text-green-400"
+          onClick={() => onLiberar(fecha, hora)}
+        >
           Liberar
         </button>
       )}

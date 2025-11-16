@@ -7,12 +7,38 @@ export default function AdminPanel() {
   const [hora, setHora] = useState("");
   const [horarios, setHorarios] = useState([]);
   const [fechasConHorarios, setFechasConHorarios] = useState([]);
-  const [editingId, setEditingId] = useState(null); // 👈 para detectar si estamos editando
+  const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [refresh, setRefresh] = useState(0);
 
+  // Cargar fechas del calendario
   useEffect(() => {
     cargarFechas();
   }, []);
+  useEffect(() => {
+    if (editingId && fechasConHorarios.length > 0) {
+      const fila = fechasConHorarios.find(f => f.id === editingId);
+      if (fila) setHorarios(fila.horarios);
+    }
+  }, [fechasConHorarios, editingId]);
+
+  async function cargarFechas() {
+    const { data, error } = await supabase
+      .from("availability")
+      .select("*")
+      .order("fecha", { ascending: true });
+
+    if (!error) setFechasConHorarios(data);
+
+  }
+
+  async function editarFecha(id, f, hs) {
+    setEditingId(id);
+    setFecha(f);
+    setHorarios(hs);
+  }
+
+  // --- Turnos manuales (ocupar / liberar) ---
 
   async function ocuparHorarioManual(fecha, hora) {
     const { data: existe } = await supabase
@@ -20,96 +46,89 @@ export default function AdminPanel() {
       .select("id")
       .eq("fecha", fecha)
       .eq("hora", hora)
+      .limit(1)
       .maybeSingle();
 
-    if (existe) {
-      alert("Ese horario ya está marcado como ocupado.");
-      return;
-    }
+    if (existe) return alert("Ese horario ya está ocupado.");
 
     const { error } = await supabase
       .from("reservations")
-      .insert([
-        { fecha, hora, nombre: "OCUPADO MANUAL", telefono: "" }
-      ]);
+      .insert([{ fecha, hora, nombre: "OCUPADO MANUAL" }]);
 
-    if (error) {
-      alert("Error al marcar ocupado.");
-      return;
-    }
+    if (error) return alert("Error al ocupar turno.");
 
+    setRefresh(n => n + 1);
+    await cargarFechas();
     alert("Horario marcado como ocupado.");
+
   }
 
   async function liberarHorarioManual(fecha, hora) {
+
+
+    const { data: reserva } = await supabase
+      .from("reservations")
+      .select("id")
+      .eq("fecha", fecha)
+      .eq("hora", hora)
+      .limit(1)
+      .maybeSingle();
+
+    if (!reserva) return console.log("No existe turno para liberar.");
+
     const { error } = await supabase
       .from("reservations")
       .delete()
-      .eq("fecha", fecha)
-      .eq("hora", hora);
+      .eq("id", reserva.id);
 
-    if (error) {
-      alert("Error al liberar horario.");
-      return;
+    if (error) return alert("No se pudo liberar.");
+
+    setRefresh(n => n + 1);
+    await cargarFechas();
+    if (editingId) {
+      const fila = fechasConHorarios.find(f => f.id === editingId);
+      if (fila) setHorarios(fila.horarios);
     }
+    alert("Turno liberado.");
 
-    alert("Horario liberado.");
   }
 
-  // Cargar listado de fechas ya guardadas
-  async function cargarFechas() {
-    const { data } = await supabase
-      .from("availability")
-      .select("id, fecha, horarios")
-      .order("fecha");
+  // --- Agregar / eliminar horarios del día ---
 
-    if (data) setFechasConHorarios(data);
-  }
-
-  // CLICK en una fecha = traer horarios y preparar para editar
-  async function editarFecha(id, fechaStr, listaHorarios) {
-    setEditingId(id);
-    setFecha(fechaStr);
-    setHorarios(listaHorarios);
-  }
-
-  // Agregar horario al array
   function agregarHorario() {
-    if (!hora) return alert("Ingresá un horario valido.");
-    if (horarios.includes(hora)) return alert("Ese horario ya existe.");
-
-    setHorarios([...horarios, hora]);
+    if (!hora) return alert("Ingresá una hora.");
+    if (!horarios.includes(hora)) {
+      setHorarios([...horarios, hora]);
+    }
     setHora("");
   }
 
-  // Quitar horario
   function eliminarHorario(h) {
     setHorarios(horarios.filter((x) => x !== h));
   }
 
-  // GUARDAR: si editingId existe → UPDATE. Si no → INSERT.
+  // --- Guardar disponibilidad ---
+
   async function guardarDisponibilidad() {
     if (!fecha) return alert("Seleccioná una fecha.");
 
     setLoading(true);
 
-    // Primero, buscamos si ya existe
     const { data: existe } = await supabase
       .from("availability")
       .select("id")
       .eq("fecha", fecha)
+      .limit(1)
       .maybeSingle();
 
     let result;
 
     if (existe) {
-      // 👉 UPDATE
       result = await supabase
         .from("availability")
         .update({ horarios })
         .eq("id", existe.id);
     } else {
-      // 👉 INSERT
       result = await supabase
         .from("availability")
         .insert([{ fecha, horarios }]);
@@ -127,8 +146,6 @@ export default function AdminPanel() {
     setLoading(false);
   }
 
-
-  // Resetear formulario
   function resetForm() {
     setFecha("");
     setHora("");
@@ -175,6 +192,7 @@ export default function AdminPanel() {
                 key={h}
                 fecha={fecha}
                 hora={h}
+                refresh={refresh}
                 onEliminar={eliminarHorario}
                 onOcupar={ocuparHorarioManual}
                 onLiberar={liberarHorarioManual}
@@ -194,7 +212,10 @@ export default function AdminPanel() {
       </button>
 
       {editingId && (
-        <button onClick={resetForm} className="mt-2 w-full py-2 rounded bg-gray-600">
+        <button
+          onClick={resetForm}
+          className="mt-2 w-full py-2 rounded bg-gray-600"
+        >
           Cancelar edición
         </button>
       )}
@@ -218,8 +239,8 @@ export default function AdminPanel() {
             </li>
           ))}
         </ul>
-
       )}
+
       <button
         onClick={() => {
           localStorage.removeItem("isAdmin");
@@ -229,16 +250,16 @@ export default function AdminPanel() {
       >
         Salir del modo Admin
       </button>
+
       <button
         onClick={() => {
           localStorage.removeItem("isAdmin");
           window.location.href = "/#/admin-login";
         }}
-        className="bg-red-500 px-4 py-2 rounded"
+        className="bg-red-500 px-4 py-2 rounded mt-2"
       >
         Cerrar sesión
       </button>
-
     </div>
   );
 }

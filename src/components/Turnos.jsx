@@ -172,7 +172,7 @@ export default function Turnos() {
                               : "bg-white text-black hover:bg-gray-100"
                           }`}
                       >
-                        {hora} {estaOcupado && "(OCUPADO)"}
+                        {hora} {estaOcupado && "OCUPADO"}
                       </button>
                     );
                   })}
