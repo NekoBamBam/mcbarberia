@@ -196,7 +196,7 @@ export default function Turnos() {
 
                       const diaSemana = format(selectedDay, "EEEE", { locale: es });
                       const fecha = format(selectedDay, "dd/MM", { locale: es });
-                      const mensaje = `Hola Martin! Quiero un turno para el ${diaSemana} ${fecha} a las ${selectedHour}`;
+                      const mensaje = `Hola Martin! Te confirmo turno para el ${diaSemana} ${fecha} a las ${selectedHour}`;
 
                       const link = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
                       window.open(link, "_blank");
