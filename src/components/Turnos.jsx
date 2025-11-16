@@ -4,7 +4,6 @@ import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-
 import { supabase as supabaseClient } from "../lib/supabaseClient";
 
 export default function Turnos() {
