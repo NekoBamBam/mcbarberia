@@ -68,12 +68,6 @@ export default function Navbar() {
           >
             TRABAJOS
           </button>
-           <button
-            onClick={() => scrollToSection("servicios")}
-            className="text-black cursor-pointer hover:text-red-500 font-serif"
-          >
-            SERVICIOS
-          </button>
           <button
             onClick={() => scrollToSection("turnos")}
             className="text-black cursor-pointer hover:text-red-500 font-serif"
@@ -104,12 +98,6 @@ export default function Navbar() {
             className="text-black"
           >
             TRABAJOS
-          </button>
-          <button
-            onClick={() => scrollToSection("servicios")}
-            className="text-black"
-          >
-            SERVICIOS
           </button>
           <button
             onClick={() => scrollToSection("turnos")}
