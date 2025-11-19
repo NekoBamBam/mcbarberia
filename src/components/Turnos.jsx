@@ -10,18 +10,47 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabase as supabaseClient } from "../lib/supabaseClient";
 
+// Genera y guarda clave única por usuario
+let userKey = localStorage.getItem("user_key");
+if (!userKey) {
+  userKey = crypto.randomUUID();
+  localStorage.setItem("user_key", userKey);
+}
+
 export default function Turnos() {
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedHour, setSelectedHour] = useState(null);
   const [availability, setAvailability] = useState(null);
   const [ocupados, setOcupados] = useState([]);
   const [precioConfirmado, setPrecioConfirmado] = useState(false);
-
   const [showPriceModal, setShowPriceModal] = useState(false);
   const [pendingDay, setPendingDay] = useState(null);
-
   const horariosRef = useRef(null);
   const whatsappNumber = "2215691249";
+  // 1) Estado para turno existente
+  const [miTurno, setMiTurno] = useState(null);
+
+  // 2) Buscar si el usuario ya reservó para esa fecha
+  const checkTurnoUsuario = async () => {
+    if (!userKey || !selectedDay) return;
+
+    const { data, error } = await supabase
+      .from("reservations")
+      .select("*")
+      .eq("user_key", userKey)
+      .eq("date", selectedDay);
+
+    if (data && data.length > 0) {
+      setMiTurno(data[0]); // Guarda fecha + hora
+    } else {
+      setMiTurno(null);
+    }
+  };
+
+  // Llamalo cuando cambie la fecha
+  useEffect(() => {
+    checkTurnoUsuario();
+  }, [selectedDay]);
 
   useEffect(() => {
     const fetchAvailability = async () => {
@@ -121,10 +150,26 @@ export default function Turnos() {
     return d && d.horarios && d.horarios.length > 0;
   };
 
+  const [showModal, setShowModal] = useState(false);
+
+
   return (
     <div id="turnos" className="flex flex-col items-center bg-black gap-6 p-6 text-white">
       <h2 className="text-2xl font-bold">Turnos</h2>
+      {
+        miTurno && (
+          <div className="bg-yellow-200 text-black p-4 rounded-xl mb-4 shadow-md">
+            <p className="font-semibold">Ya tenés un turno pendiente</p>
 
+            <button
+              onClick={() => setShowModal(true)}
+              className="mt-2 bg-black text-white px-4 py-2 rounded-lg"
+            >
+              Ver mi turno
+            </button>
+          </div>
+        )
+      }
       {!availability && <p className="text-white text-center mt-10">Cargando disponibilidad...</p>}
 
       {availability && (
@@ -187,22 +232,37 @@ export default function Turnos() {
                   <button
                     onClick={async () => {
                       const fechaISO = format(selectedDay, "yyyy-MM-dd");
+                      // 1) Ver si ya tiene un turno reservado
+                      const { data: turnoExistente } = await supabaseClient
+                        .from("reservations")
+                        .select("*")
+                        .eq("user_key", userKey)
+                        .maybeSingle();
+
+                      if (turnoExistente) {
+                        alert("⚠ Ya tenés un turno pendiente.");
+                        setMiTurno(turnoExistente);
+                        setShowModal(true); // Abre modal “ver mi turno”
+                        return;
+                      }
 
                       const { data, error } = await supabaseClient.rpc("reservar_turno", {
                         p_fecha: fechaISO,
                         p_hora: selectedHour,
                         p_nombre: "Cliente",
                         p_telefono: "",
+                        p_user_key: userKey
                       });
+
 
                       if (error || !data[0].success) {
                         alert("⛔ Ese turno ya fue tomado.");
                         return;
                       }
-
+                      const userKeyShort = userKey.slice(-4);
                       const diaSemana = format(selectedDay, "EEEE", { locale: es });
                       const fecha = format(selectedDay, "dd/MM", { locale: es });
-                      const mensaje = `Hola Martin! Te confirmo turno para el ${diaSemana} ${fecha} a las ${selectedHour}`;
+                      const mensaje = `Hola Martin! Te confirmo turno para el ${diaSemana} ${fecha} a las ${selectedHour}. Mi codigo de cliente es ${userKeyShort} `;
 
                       const link = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
                         mensaje
@@ -223,6 +283,23 @@ export default function Turnos() {
                 </p>
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {showModal && miTurno && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+          <div className="bg-white rounded-xl p-6 max-w-sm text-center shadow-lg">
+            <h2 className="font-bold text-xl mb-2 text-black">Tu turno reservado</h2>
+
+            <p className="text-black"><b>Fecha:</b> {miTurno.fecha}</p>
+            <p className="text-black"><b>Hora:</b> {miTurno.hora}</p>
+
+            <button
+              className="mt-4 bg-black text-white px-4 py-2 rounded-lg"
+              onClick={() => setShowModal(false)}
+            >
+              Cerrar
+            </button>
           </div>
         </div>
       )}
