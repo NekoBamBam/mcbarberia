@@ -94,7 +94,7 @@ function Home() {
           </div>
         </div>
       </div>
-      <section id="trabajos" className="flex items-center justify-center p-2 h-screen w-screen lg:h-full lg:w-full bg-[#585856] ">
+      <section id="trabajos" className="flex items-center justify-center h-screen w-full lg:h-full lg:w-full bg-[#585856]">
         <Works />
       </section>
     </div>

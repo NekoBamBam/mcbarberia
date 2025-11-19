@@ -2,10 +2,11 @@ import React from "react";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import { Outlet } from "react-router";
+import BackToTopButton from "../components/BackToTopButton";
 
 function Layout() {
   return (
-    <div className="flex flex-col justify-start w-screen h-screen overflow-x-hidden">
+    <div className="w-full">
       <header>
         <Navbar />
       </header>
@@ -15,6 +16,7 @@ function Layout() {
       <footer>
         <Footer />
       </footer>
+      <BackToTopButton />
     </div>
   );
 }
