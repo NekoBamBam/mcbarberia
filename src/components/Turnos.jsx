@@ -250,7 +250,6 @@ export default function Turnos() {
                         p_fecha: fechaISO,
                         p_hora: selectedHour,
                         p_nombre: "Cliente",
-                        p_telefono: "",
                         p_user_key: userKey
                       });
 
