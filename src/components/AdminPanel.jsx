@@ -14,8 +14,8 @@ export default function AdminPanel() {
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [refresh, setRefresh] = useState(0);
-// lista local de horarios seleccionados para guardar en batch
-const [batchHorarios, setBatchHorarios] = useState([]);
+  // lista local de horarios seleccionados para guardar en batch
+  const [batchHorarios, setBatchHorarios] = useState([]);
 
   useEffect(() => {
     (async () => {
@@ -187,42 +187,42 @@ const [batchHorarios, setBatchHorarios] = useState([]);
     await cargarFechas();
     alert("Horario habilitado correctamente.");
   }
-async function guardarBatchHorarios(fechaISO) {
-  if (!fechaISO) return alert("Seleccioná una fecha.");
-  if (batchHorarios.length === 0) return alert("No seleccionaste horarios.");
+  async function guardarBatchHorarios(fechaISO) {
+    if (!fechaISO) return alert("Seleccioná una fecha.");
+    if (batchHorarios.length === 0) return alert("No seleccionaste horarios.");
 
-  // Armar objetos para insertar
-  const filas = batchHorarios.map((id) => {
-    const h = HORARIOS.find((x) => x.id === id);
-    return {
-      fecha: fechaISO,
-      hora: h.hora,
-      hora_id: id,
-      nombre: "DISPONIBLE",
-      user_key: "admin",
-      habilitado: true
-    };
-  });
+    // Armar objetos para insertar
+    const filas = batchHorarios.map((id) => {
+      const h = HORARIOS.find((x) => x.id === id);
+      return {
+        fecha: fechaISO,
+        hora: h.hora,
+        hora_id: id,
+        nombre: "DISPONIBLE",
+        user_key: "admin",
+        habilitado: true
+      };
+    });
 
-  // Evitar duplicados → eliminar primero lo que ya exista
-  await supabase
-    .from("reservations")
-    .delete()
-    .eq("fecha", fechaISO)
-    .eq("habilitado", true);
+    // Evitar duplicados → eliminar primero lo que ya exista
+    await supabase
+      .from("reservations")
+      .delete()
+      .eq("fecha", fechaISO)
+      .eq("habilitado", true);
 
-  // Insertar todo junto
-  const { error } = await supabase.from("reservations").insert(filas);
+    // Insertar todo junto
+    const { error } = await supabase.from("reservations").insert(filas);
 
-  if (error) {
-    console.error(error);
-    return alert("Error al guardar los horarios.");
+    if (error) {
+      console.error(error);
+      return alert("Error al guardar los horarios.");
+    }
+
+    setBatchHorarios([]);
+    setRefresh(n => n + 1);
+    alert("Horarios guardados correctamente.");
   }
-
-  setBatchHorarios([]);
-  setRefresh(n => n + 1);
-  alert("Horarios guardados correctamente.");
-}
 
   // Deshabilita (borra) todas las disponibilidades de una fecha
   async function deshabilitarTodosHorariosFecha(fechaISO) {
@@ -282,28 +282,28 @@ async function guardarBatchHorarios(fechaISO) {
       {/* Agregar / Habilitar horario predefinido */}
       <label className="block mt-4">Habilitar horario predefinido</label>
       {/* NUEVO: selección múltiple */}
-<div className="mt-4 p-2 bg-[#23272f] rounded">
-  <p className="mb-2 font-semibold text-sm">Seleccionar varios horarios:</p>
-  <div className="grid grid-cols-2 gap-2">
-    {HORARIOS.map((h) => (
-      <label key={h.id} className="flex items-center space-x-2 text-sm">
-        <input
-          type="checkbox"
-          className="accent-blue-500"
-          checked={batchHorarios.includes(h.id)}
-          onChange={() => {
-            if (batchHorarios.includes(h.id)) {
-              setBatchHorarios(batchHorarios.filter((x) => x !== h.id));
-            } else {
-              setBatchHorarios([...batchHorarios, h.id]);
-            }
-          }}
-        />
-        <span>{h.hora}</span>
-      </label>
-    ))}
-  </div>
-</div>
+      <div className="mt-4 p-2 bg-[#23272f] rounded">
+        <p className="mb-2 font-semibold text-sm">Seleccionar varios horarios:</p>
+        <div className="grid grid-cols-2 gap-2">
+          {HORARIOS.map((h) => (
+            <label key={h.id} className="flex items-center space-x-2 text-sm">
+              <input
+                type="checkbox"
+                className="accent-blue-500"
+                checked={batchHorarios.includes(h.id)}
+                onChange={() => {
+                  if (batchHorarios.includes(h.id)) {
+                    setBatchHorarios(batchHorarios.filter((x) => x !== h.id));
+                  } else {
+                    setBatchHorarios([...batchHorarios, h.id]);
+                  }
+                }}
+              />
+              <span>{h.hora}</span>
+            </label>
+          ))}
+        </div>
+      </div>
 
       {/* Botón para deshabilitar (borrado) */}
       <div className="mt-2">
@@ -342,7 +342,7 @@ async function guardarBatchHorarios(fechaISO) {
         </div>
       )}
 
-   
+
       {editingId && (
         <button onClick={resetForm} className="mt-2 w-full py-2 rounded bg-gray-600">
           Cancelar edición
@@ -350,12 +350,12 @@ async function guardarBatchHorarios(fechaISO) {
       )}
 
       <hr className="my-4 border-gray-600" />
-<button
-  onClick={() => guardarBatchHorarios(fecha)}
-  className="mt-3 w-full bg-green-600 py-2 rounded font-bold"
->
-  Guardar turnos del día
-</button>
+      <button
+        onClick={() => guardarBatchHorarios(fecha)}
+        className="mt-3 w-full bg-green-600 py-2 rounded font-bold"
+      >
+        Guardar turnos del día
+      </button>
 
       {/* Fechas existentes */}
       <h3 className="text-lg font-bold">Fechas con horarios:</h3>

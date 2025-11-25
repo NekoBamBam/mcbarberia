@@ -13,3 +13,12 @@
     margin-left: 0;
   }
 }
+/* Restaurar DayPicker */
+.rdp {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+
+.rdp-day {
+  transition: all 0.2s ease;
+}

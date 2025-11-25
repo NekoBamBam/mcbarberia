@@ -38,48 +38,48 @@ export default function Turnos() {
     checkTurnoUsuario();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDay]);
- // Cargar días disponibles (habilitados) una sola vez
-useEffect(() => {
-  async function fetchDiasDisponibles() {
-    const { data, error } = await supabase
-      .from("reservations")
-      .select("fecha")
-      .eq("habilitado", true);
+  // Cargar días disponibles (habilitados) una sola vez
+  useEffect(() => {
+    async function fetchDiasDisponibles() {
+      const { data, error } = await supabase
+        .from("reservations")
+        .select("fecha")
+        .eq("habilitado", true);
 
-    if (!error && data) {
-      const unique = [...new Set(data.map(d => d.fecha))];
-      setDiasDisponibles(unique.map(f => new Date(f)));
-    } else {
-      setDiasDisponibles([]);
+      if (!error && data) {
+        const unique = [...new Set(data.map(d => d.fecha))];
+        setDiasDisponibles(unique.map(f => new Date(f)));
+      } else {
+        setDiasDisponibles([]);
+      }
     }
-  }
-  fetchDiasDisponibles();
-}, []);
+    fetchDiasDisponibles();
+  }, []);
 
-// Cargar HORARIOS disponibles solo cuando cambie el día
-useEffect(() => {
-  async function fetchAvailableHorarios() {
-    if (!selectedDay) {
-      setAvailableHorarioIds([]);
-      return;
+  // Cargar HORARIOS disponibles solo cuando cambie el día
+  useEffect(() => {
+    async function fetchAvailableHorarios() {
+      if (!selectedDay) {
+        setAvailableHorarioIds([]);
+        return;
+      }
+      const fechaISO = selectedDay.toISOString().split("T")[0];
+
+      const { data, error } = await supabase
+        .from("reservations")
+        .select("hora_id")
+        .eq("fecha", fechaISO)
+        .eq("habilitado", true);
+
+      if (!error && data) {
+        setAvailableHorarioIds(data.map(d => d.hora_id).filter(Boolean));
+      } else {
+        setAvailableHorarioIds([]);
+      }
     }
-    const fechaISO = selectedDay.toISOString().split("T")[0];
 
-    const { data, error } = await supabase
-      .from("reservations")
-      .select("hora_id")
-      .eq("fecha", fechaISO)
-      .eq("habilitado", true);
-
-    if (!error && data) {
-      setAvailableHorarioIds(data.map(d => d.hora_id).filter(Boolean));
-    } else {
-      setAvailableHorarioIds([]);
-    }
-  }
-
-  fetchAvailableHorarios();
-}, [selectedDay]);
+    fetchAvailableHorarios();
+  }, [selectedDay]);
 
   async function checkTurnoUsuario() {
     const userKey = getOrCreateUserKey();
@@ -100,22 +100,22 @@ useEffect(() => {
   }
 
   async function fetchOcupados() {
-  if (!selectedDay) return setOcupadosIds([]);
+    if (!selectedDay) return setOcupadosIds([]);
 
-  const fechaISO = selectedDay.toISOString().split("T")[0];
+    const fechaISO = selectedDay.toISOString().split("T")[0];
 
-  const { data, error } = await supabase
-    .from("reservations")
-    .select("hora_id")
-    .eq("fecha", fechaISO)
-    .eq("habilitado", false);
+    const { data, error } = await supabase
+      .from("reservations")
+      .select("hora_id")
+      .eq("fecha", fechaISO)
+      .eq("habilitado", false);
 
-  if (!error && data) {
-    setOcupadosIds(data.map(d => d.hora_id).filter(Boolean));
-  } else {
-    setOcupadosIds([]);
+    if (!error && data) {
+      setOcupadosIds(data.map(d => d.hora_id).filter(Boolean));
+    } else {
+      setOcupadosIds([]);
+    }
   }
-}
 
 
   useEffect(() => {
@@ -241,16 +241,38 @@ useEffect(() => {
       <div className="flex flex-col md:flex-row md:gap-10 w-full max-w-5xl justify-center">
         <div className="flex justify-center w-full md:w-auto">
           <DayPicker
-            mode="single"
-            selected={selectedDay}
-            onSelect={handleSelect}
-            locale={es}
-            className="p-4 border rounded-xl shadow-md bg-white text-black"
-            disabled={[
-              { before: new Date() },     // bloquear pasado
-              { not: diasDisponibles }    // bloquear cualquier fecha que NO esté en la lista
-            ]}
-          />
+  mode="single"
+  selected={selectedDay}
+  onSelect={setSelectedDay}
+  locale={es}
+  fromDate={new Date()}
+  disabled={[
+    { before: new Date() },
+    (date) =>
+      !diasDisponibles.some(
+        (d) => d.toDateString() === date.toDateString()
+      )
+  ]}
+
+  // NUEVO: estilos según disponibilidad
+  modifiers={{
+    disponible: (date) =>
+      diasDisponibles.some(
+        (d) => d.toDateString() === date.toDateString()
+      ),
+    nodisponible: (date) =>
+      !diasDisponibles.some(
+        (d) => d.toDateString() === date.toDateString()
+      ),
+  }}
+
+  modifiersClassNames={{
+    disponible: "dia-disponible",
+    nodisponible: "dia-nodisponible",
+  }}
+/>
+
+
 
         </div>
 
