@@ -43,31 +43,47 @@ export default function AdminPanel() {
   }, [fechasConHorarios, editingId]);
 
   async function cargarFechas() {
-
-    // Si no existe availability -> construir listado con reservas existentes
-    // Agrupamos las reservas por fecha y devolvemos horarios ocupados (por si el admin quiere ver)
-    // Si no existe availability -> construir listado con disponibilidades (habilitado=true)
-    const { data, error } = await supabase
+    // 1) Traer SOLO disponibilidades
+    const { data: disponibles, error: err1 } = await supabase
       .from("reservations")
-      .select("fecha, hora_id, hora")
+      .select("id, fecha, hora, habilitado, nombre, user_key")
       .eq("habilitado", true)
       .order("fecha", { ascending: true });
 
-    if (error || !data) {
+    if (err1) {
+      console.error(err1);
       setFechasConHorarios([]);
       return;
     }
 
+    // 2) Traer reservas reales (nombre != 'DISPONIBLE')
+    const { data: reservas, error: err2 } = await supabase
+      .from("reservations")
+      .select("fecha, hora, nombre")
+      .neq("nombre", "DISPONIBLE");
+
     const mapa = {};
-    data.forEach((r) => {
-      const f = r.fecha;
-      if (!mapa[f]) mapa[f] = { fecha: f, horarios: [] };
-      mapa[f].horarios.push(r.hora || `id:${r.hora_id}`);
+
+    disponibles.forEach(d => {
+      if (!mapa[d.fecha]) mapa[d.fecha] = { fecha: d.fecha, horarios: [] };
+
+      // por defecto un horario habilitado es DISPONIBLE
+      let estado = "DISPONIBLE";
+
+      // si existe una reserva real → ocupado
+      if (reservas.some(r => r.fecha === d.fecha && r.hora === d.hora)) {
+        estado = "OCUPADO";
+      }
+
+      mapa[d.fecha].horarios.push({
+        hora: d.hora,
+        estado
+      });
     });
 
     setFechasConHorarios(Object.values(mapa));
-
   }
+
 
   async function editarFecha(id, f, hs) {
     setEditingId(id);
@@ -76,26 +92,26 @@ export default function AdminPanel() {
   }
 
   // --- Turnos manuales (ocupar / liberar) ---
-  // Ahora usamos hora_id si el horario viene con id, o buscamos id por hora en lista predef.
+  // Ahora usamos hora si el horario viene con id, o buscamos id por hora en lista predef.
   async function ocuparHorarioManual(fecha, horaOrHorario) {
     // horaOrHorario puede ser '10:30' o un objeto {id, hora}
-    let hora_id = null;
+    let hora = null;
     let horaTexto = horaOrHorario;
 
     if (typeof horaOrHorario === "object" && horaOrHorario?.id) {
-      hora_id = horaOrHorario.id;
+      hora = horaOrHorario.hora;
       horaTexto = horaOrHorario.hora;
     } else {
       // intentar mapear por hora en predefinidos
       const found = HORARIOS.find((h) => h.hora === horaOrHorario);
-      if (found) hora_id = found.id;
+      if (found) hora = found.id;
     }
 
     const fechaISO = fecha;
 
-    // Validar no duplicado (por fecha + hora_id si existe, si no por hora string)
+    // Validar no duplicado (por fecha + hora si existe, si no por hora string)
     let query = supabase.from("reservations").select("id").eq("fecha", fechaISO);
-    if (hora_id) query = query.eq("hora_id", hora_id).limit(1).maybeSingle();
+    if (hora) query = query.eq("hora", hora).limit(1).maybeSingle();
     else query = query.eq("hora", horaTexto).limit(1).maybeSingle();
 
     const { data: existe } = await query;
@@ -107,10 +123,10 @@ export default function AdminPanel() {
         fecha: fechaISO,
         hora: horaTexto,
         nombre: "OCUPADO MANUAL",
-        hora_id: hora_id || null,
-        user_key: "manual",
+        user_key: "manual"
       },
     ]);
+
 
     if (error) return alert("Error al ocupar turno.");
 
@@ -120,20 +136,20 @@ export default function AdminPanel() {
   }
 
   async function liberarHorarioManual(fecha, horaOrHorario) {
-    let hora_id = null;
+    let hora = null;
     let horaTexto = horaOrHorario;
 
     if (typeof horaOrHorario === "object" && horaOrHorario?.id) {
-      hora_id = horaOrHorario.id;
+      hora = horaOrHorario.hora;
       horaTexto = horaOrHorario.hora;
     } else {
       const found = HORARIOS.find((h) => h.hora === horaOrHorario);
-      if (found) hora_id = found.id;
+      if (found) hora = found.id;
     }
 
-    // Buscar reserva por fecha+hora_id o fecha+hora
+    // Buscar reserva por fecha+hora o fecha+hora
     let q = supabase.from("reservations").select("id");
-    if (hora_id) q = q.eq("fecha", fecha).eq("hora_id", hora_id).limit(1).maybeSingle();
+    if (hora) q = q.eq("fecha", fecha).eq("hora", hora).limit(1).maybeSingle();
     else q = q.eq("fecha", fecha).eq("hora", horaTexto).limit(1).maybeSingle();
 
     const { data: reserva } = await q;
@@ -154,39 +170,43 @@ export default function AdminPanel() {
   }
   // Habilita un horario (inserta fila que marca disponibilidad)
   async function habilitarHorario(fechaISO, horarioId) {
+    // obtener la hora REAL desde horarios.js
+    const horarioObj = HORARIOS.find(h => h.id === horarioId);
+    const horaTexto = horarioObj?.hora || "";
+
     // si ya existe esa disponibilidad, no duplicar
     const { data: existe } = await supabase
       .from("reservations")
       .select("id")
       .eq("fecha", fechaISO)
-      .eq("hora_id", horarioId)
+      .eq("hora", horaTexto) // ← ahora sí, porque ya está declarado arriba
       .eq("habilitado", true)
       .limit(1)
       .maybeSingle();
 
     if (existe) return alert("Ese horario ya está habilitado en esa fecha.");
 
-    const horarioObj = HORARIOS.find(h => h.id === horarioId);
-    const horaTexto = horarioObj?.hora || "";
-
-    const { error } = await supabase.from("reservations").insert([{
-      fecha: fechaISO,
-      hora: horaTexto,
-      nombre: "DISPONIBLE",        // etiqueta interna
-      user_key: "admin",           // marca que fue creado desde admin
-      hora_id: horarioId,
-      habilitado: true
-    }]);
+    // insertar el horario habilitado
+    const { error } = await supabase.from("reservations").insert([
+      {
+        fecha: fechaISO,
+        hora: horaTexto,
+        nombre: "DISPONIBLE",
+        user_key: "admin",
+        habilitado: true
+      }
+    ]);
 
     if (error) {
       console.error(error);
       return alert("No se pudo habilitar el horario.");
     }
 
-    setRefresh(n => n + 1);
+    setRefresh((n) => n + 1);
     await cargarFechas();
     alert("Horario habilitado correctamente.");
   }
+
   async function guardarBatchHorarios(fechaISO) {
     if (!fechaISO) return alert("Seleccioná una fecha.");
     if (batchHorarios.length === 0) return alert("No seleccionaste horarios.");
@@ -197,7 +217,6 @@ export default function AdminPanel() {
       return {
         fecha: fechaISO,
         hora: h.hora,
-        hora_id: id,
         nombre: "DISPONIBLE",
         user_key: "admin",
         habilitado: true
@@ -329,15 +348,16 @@ export default function AdminPanel() {
           <div className="flex flex-wrap gap-2 mt-1">
             {horarios.map((h) => (
               <HorarioItem
-                key={h}
-                fecha={fecha}
-                hora={h}
-                refresh={refresh}
-                onEliminar={eliminarHorario}
-                onOcupar={() => ocuparHorarioManual(fecha, h)}
-                onLiberar={() => liberarHorarioManual(fecha, h)}
+                key={h.hora}
+                fecha={selectedFecha}
+                hora={h.hora}
+                estado={h.estado} // ← ahora se lo pasamos acá
+                onEliminar={handleEliminar}
+                onOcupar={handleOcupar}
+                onLiberar={handleLiberar}
               />
             ))}
+
           </div>
         </div>
       )}
