@@ -6,7 +6,6 @@ import "react-day-picker/dist/style.css";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabase } from "../lib/supabaseClient";
-import { HORARIOS } from "./Horarios";
 
 // Genera y guarda clave única por usuario
 function getOrCreateUserKey() {
@@ -21,115 +20,58 @@ function getOrCreateUserKey() {
 export default function Turnos() {
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedHorario, setSelectedHorario] = useState(null);
-  const [ocupadosIds, setOcupadosIds] = useState([]);
-  const [precioConfirmado, setPrecioConfirmado] = useState(false);
-  const [showPriceModal, setShowPriceModal] = useState(false);
-  const [pendingDay, setPendingDay] = useState(null);
   const horariosRef = useRef(null);
   const whatsappNumber = "2215691249";
   const [miTurno, setMiTurno] = useState(null);
   const [diasDisponibles, setDiasDisponibles] = useState([]);     // lista de Date()
-  const [availableHorarioIds, setAvailableHorarioIds] = useState([]); // ids habilitados para selectedDay
+  const [horarios, setHorarios] = useState([]);
+  const [ocupados, setOcupados] = useState([]);
 
-
-  // Cargar ocupados cuando cambie la fecha
-  useEffect(() => {
-    fetchOcupados();
-    checkTurnoUsuario();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDay]);
   useEffect(() => {
     async function cargarDiasDisponibles() {
       const { data, error } = await supabase
-        .from("reservations")
+        .from("horarios")
         .select("fecha")
         .eq("habilitado", true);
 
       if (error) {
         console.error(error);
-        setDiasDisponibles([]);
         return;
       }
 
-      const unicos = [...new Set(data.map(d => d.fecha))];
+      const fechas = [...new Set(data.map(d => d.fecha))]
+        .map(f => new Date(f));
 
-      // Convertir SIEMPRE a objetos Date reales
-      const fechasDate = unicos.map(f => {
-        const d = new Date(f);
-        d.setHours(0, 0, 0, 0);
-        return d;
-      });
-
-      setDiasDisponibles(fechasDate);
+      setDiasDisponibles(fechas);
     }
 
     cargarDiasDisponibles();
   }, []);
 
-  // Cargar HORARIOS disponibles solo cuando cambie el día
   useEffect(() => {
-    async function fetchAvailableHorarios() {
-      if (!selectedDay) {
-        setAvailableHorarioIds([]);
-        return;
-      }
-      const fechaISO = selectedDay.toISOString().split("T")[0];
+    async function checkTurnoUsuario() {
+      const userKey = getOrCreateUserKey();
 
-      const { data, error } = await supabase
-        .from("reservations")
-        .select("hora")
-        .eq("fecha", fechaISO)
-        .eq("habilitado", true);
+      const { data } = await supabase
+        .from("reservas")
+        .select("id, fecha, hora")
+        .eq("user_key", userKey)
+        .gte("fecha", new Date().toISOString().split("T")[0])
+        .order("fecha", { ascending: true })
+        .limit(1)
+        .maybeSingle();
 
-      if (!error && data) {
-        setAvailableHorarioIds(data.map(d => d.hora).filter(Boolean));
-      } else {
-        setAvailableHorarioIds([]);
-      }
+      if (data) setMiTurno(data);
     }
 
-    fetchAvailableHorarios();
-  }, [selectedDay]);
+    checkTurnoUsuario();
+  }, []);
 
-  async function checkTurnoUsuario() {
-    const userKey = getOrCreateUserKey();
-    if (!userKey || !selectedDay) return;
-
-    const fechaISO = selectedDay.toISOString().split("T")[0];
-
-
-    const { data, error } = await supabase
-      .from("reservations")
-      .select("id, fecha, hora, hora")
-      .eq("user_key", userKey)
-      .eq("fecha", fechaISO)
-      .maybeSingle();
-
-    if (data) setMiTurno(data);
-    else setMiTurno(null);
-  }
-
-  async function fetchOcupados() {
-    if (!selectedDay) return setOcupadosIds([]);
-
-    const fechaISO = selectedDay.toISOString().split("T")[0];
-
-    const { data, error } = await supabase
-      .from("reservations")
-      .select("hora")
-      .eq("fecha", fechaISO)
-      .eq("habilitado", false);
-
-    if (!error && data) {
-      setOcupadosIds(data.map(d => d.hora).filter(Boolean));
-    } else {
-      setOcupadosIds([]);
-    }
-  }
 
 
   useEffect(() => {
     if (!selectedDay || !horariosRef.current) return;
+    setSelectedHorario(null);
     const isMobile = window.innerWidth < 768;
     if (!isMobile) return;
     requestAnimationFrame(() => {
@@ -156,61 +98,57 @@ export default function Turnos() {
     setSelectedDay(day);
   };
 
+  useEffect(() => {
+    if (!selectedDay) return;
 
-  const confirmarPrecio = () => {
-    setSelectedDay(pendingDay);
-    setPendingDay(null);
-    setShowPriceModal(false);
-    setPrecioConfirmado(true);
-  };
+    async function cargarDia() {
+      const fechaISO = selectedDay.toISOString().split("T")[0];
 
-  const cancelarPrecio = () => {
-    setPendingDay(null);
-    setShowPriceModal(false);
-  };
+      const { data: horariosDB } = await supabase
+        .from("horarios")
+        .select("hora")
+        .eq("fecha", fechaISO)
+        .eq("habilitado", true);
 
-  const horarios = HORARIOS.filter(h => availableHorarioIds.includes(h.hora));
+      const { data: reservasDB } = await supabase
+        .from("reservas")
+        .select("hora")
+        .eq("fecha", fechaISO);
+
+      setHorarios(horariosDB.map(h => h.hora));
+      setOcupados(reservasDB.map(r => r.hora));
+    }
+
+    cargarDia();
+  }, [selectedDay]);
 
 
-  async function reservarTurno(fechaISO, horaTexto) {
-  // 1) Ver si ya está ocupado
-  const { data: ocupado } = await supabase
-    .from("reservations")
-    .select("id")
-    .eq("fecha", fechaISO)
-    .eq("hora", horaTexto)
-    .maybeSingle();
+  async function reservarTurno(fecha, hora) {
+    const userKey = getOrCreateUserKey();
 
-  if (ocupado) {
-    alert("⛔ Ese horario ya fue reservado.");
-    await fetchOcupados();
-    return false;
+    const { data: existente } = await supabase
+      .from("reservas")
+      .select("id")
+      .eq("fecha", fecha)
+      .eq("hora", hora)
+      .maybeSingle();
+
+    if (existente) {
+      alert("Ese turno ya fue tomado");
+      return false;
+    }
+
+    const { error } = await supabase
+      .from("reservas")
+      .insert({ fecha, hora, user_key: userKey });
+
+    if (error) {
+      alert("Error al reservar");
+      return false;
+    }
+
+    return true;
   }
-
-  const userKey = getOrCreateUserKey();
-
-  // 2) Insertar turno
-  const { error } = await supabase
-    .from("reservations")
-    .insert([
-      {
-        fecha: fechaISO,
-        hora: horaTexto,
-        nombre: "Cliente",
-        user_key: userKey
-      },
-    ]);
-
-  if (error) {
-    console.error(error);
-    alert("⛔ No se pudo reservar.");
-    return false;
-  }
-
-  await fetchOcupados();
-  return true;
-}
-
 
 
   return (
@@ -220,10 +158,6 @@ export default function Turnos() {
       {miTurno && (
         <div className="bg-yellow-200 text-black p-4 rounded-xl mb-4 shadow-md">
           <p className="font-semibold">Ya tenés un turno pendiente</p>
-
-          <button onClick={() => setMiTurno(miTurno)} className="mt-2 bg-black text-white px-4 py-2 rounded-lg">
-            Ver mi turno
-          </button>
         </div>
       )}
 
@@ -259,25 +193,27 @@ export default function Turnos() {
               <h3 className="text-xl font-bold mb-4 text-center md:text-left">Horarios para {format(selectedDay, "dd/MM/yyyy")}</h3>
 
               <div className="grid grid-cols-3 gap-3">
-                {horarios.map((h) => {
-                  const estaOcupado = ocupadosIds.includes(h.hora);
+                {horarios.map(hora => {
+                  const estaOcupado = ocupados.includes(hora);
+
                   return (
                     <button
-                      key={h.hora}
-                      onClick={() => !estaOcupado && setSelectedHorario(h.hora)}
+                      key={hora}
                       disabled={estaOcupado}
-                      className={`p-3 cursor-pointer rounded-xl border transition 
+                      className={`px-3 py-2 rounded-lg text-sm
     ${estaOcupado
-                          ? "bg-red-500 text-white opacity-70 cursor-not-allowed"
-                          : selectedHorario === h.hora
-                            ? "bg-black text-white"
-                            : "bg-white text-black hover:bg-gray-100"
-                        }`}
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : selectedHorario === hora
+                            ? "bg-green-700"
+                            : "bg-green-500 hover:bg-green-600"}
+  `}
+                      onClick={() => setSelectedHorario(hora)}
                     >
-                      {h.hora} {estaOcupado && "OCUPADO"}
+
                     </button>
                   );
                 })}
+
               </div>
 
               {selectedHorario && (
@@ -288,7 +224,7 @@ export default function Turnos() {
                     const userKey = getOrCreateUserKey();
 
                     // 1) Ver si ya tiene un turno reservado EN ESE DIA por este user_key
-                    const { data: turnoExistente } = await supabase.from("reservations").select("id, fecha, hora, hora").eq("user_key", userKey).eq("fecha", fechaISO).maybeSingle();
+                    const { data: turnoExistente } = await supabase.from("reservas").select("id, fecha, hora, hora").eq("user_key", userKey).eq("fecha", fechaISO).maybeSingle();
 
                     if (turnoExistente) {
                       alert("⚠ Ya tenés un turno pendiente ese día.");
@@ -345,28 +281,6 @@ export default function Turnos() {
         </div>
       )}
 
-      {/* MODAL DE PRECIO */}
-      {showPriceModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white text-black p-6 rounded-xl w-80 shadow-lg text-center">
-            <h3 className="text-xl font-bold mb-3">Politica de cancelación</h3>
-            <p className="mb-5 text-lg font-semibold">
-              Para respetar el tiempo de cada cliente, las cancelaciones deben realizarse con un mínimo de 2 horas de
-              anticipación. De no ser así, <a className="text-red-500"> se aplicará el cargo correspondiente al valor completo del servicio reservado.</a>
-            </p>
-
-            <div className="flex gap-4 justify-center">
-              <button className="px-4 py-2 bg-gray-300 rounded-xl" onClick={cancelarPrecio}>
-                Cancelar
-              </button>
-
-              <button className="px-4 py-2 bg-green-600 text-white rounded-xl" onClick={confirmarPrecio}>
-                Confirmar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

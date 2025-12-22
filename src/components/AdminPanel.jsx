@@ -45,7 +45,7 @@ export default function AdminPanel() {
   async function cargarFechas() {
     // 1) Traer SOLO disponibilidades
     const { data: disponibles, error: err1 } = await supabase
-      .from("reservations")
+      .from("reservas")
       .select("id, fecha, hora, habilitado, nombre, user_key")
       .eq("habilitado", true)
       .order("fecha", { ascending: true });
@@ -58,7 +58,7 @@ export default function AdminPanel() {
 
     // 2) Traer reservas reales (nombre != 'DISPONIBLE')
     const { data: reservas, error: err2 } = await supabase
-      .from("reservations")
+      .from("reservas")
       .select("fecha, hora, nombre")
       .neq("nombre", "DISPONIBLE");
 
@@ -110,7 +110,7 @@ export default function AdminPanel() {
     const fechaISO = fecha;
 
     // Validar no duplicado (por fecha + hora si existe, si no por hora string)
-    let query = supabase.from("reservations").select("id").eq("fecha", fechaISO);
+    let query = supabase.from("reservas").select("id").eq("fecha", fechaISO);
     if (hora) query = query.eq("hora", hora).limit(1).maybeSingle();
     else query = query.eq("hora", horaTexto).limit(1).maybeSingle();
 
@@ -118,7 +118,7 @@ export default function AdminPanel() {
 
     if (existe) return alert("Ese horario ya está ocupado.");
 
-    const { error } = await supabase.from("reservations").insert([
+    const { error } = await supabase.from("reservas").insert([
       {
         fecha: fechaISO,
         hora: horaTexto,
@@ -148,7 +148,7 @@ export default function AdminPanel() {
     }
 
     // Buscar reserva por fecha+hora o fecha+hora
-    let q = supabase.from("reservations").select("id");
+    let q = supabase.from("reservas").select("id");
     if (hora) q = q.eq("fecha", fecha).eq("hora", hora).limit(1).maybeSingle();
     else q = q.eq("fecha", fecha).eq("hora", horaTexto).limit(1).maybeSingle();
 
@@ -156,7 +156,7 @@ export default function AdminPanel() {
 
     if (!reserva) return alert("No existe turno para liberar.");
 
-    const { error } = await supabase.from("reservations").delete().eq("id", reserva.id);
+    const { error } = await supabase.from("reservas").delete().eq("id", reserva.id);
 
     if (error) return alert("No se pudo liberar.");
 
@@ -176,7 +176,7 @@ export default function AdminPanel() {
 
     // si ya existe esa disponibilidad, no duplicar
     const { data: existe } = await supabase
-      .from("reservations")
+      .from("reservas")
       .select("id")
       .eq("fecha", fechaISO)
       .eq("hora", horaTexto) // ← ahora sí, porque ya está declarado arriba
@@ -187,7 +187,7 @@ export default function AdminPanel() {
     if (existe) return alert("Ese horario ya está habilitado en esa fecha.");
 
     // insertar el horario habilitado
-    const { error } = await supabase.from("reservations").insert([
+    const { error } = await supabase.from("reservas").insert([
       {
         fecha: fechaISO,
         hora: horaTexto,
@@ -225,13 +225,13 @@ export default function AdminPanel() {
 
     // Evitar duplicados → eliminar primero lo que ya exista
     await supabase
-      .from("reservations")
+      .from("reservas")
       .delete()
       .eq("fecha", fechaISO)
       .eq("habilitado", true);
 
     // Insertar todo junto
-    const { error } = await supabase.from("reservations").insert(filas);
+    const { error } = await supabase.from("reservas").insert(filas);
 
     if (error) {
       console.error(error);
@@ -247,7 +247,7 @@ export default function AdminPanel() {
   async function deshabilitarTodosHorariosFecha(fechaISO) {
     // Eliminamos SOLO las filas que son disponibilidades (habilitado = true)
     const { error } = await supabase
-      .from("reservations")
+      .from("reservas")
       .delete()
       .eq("fecha", fechaISO)
       .eq("habilitado", true);
@@ -339,30 +339,6 @@ export default function AdminPanel() {
         </button>
       </div>
 
-
-
-      {/* Horarios agregados */}
-      {horarios.length > 0 && (
-        <div className="mt-3">
-          <p className="font-semibold">Horarios para el día:</p>
-          <div className="flex flex-wrap gap-2 mt-1">
-            {horarios.map((h) => (
-              <HorarioItem
-                key={h.hora}
-                fecha={selectedFecha}
-                hora={h.hora}
-                estado={h.estado} // ← ahora se lo pasamos acá
-                onEliminar={handleEliminar}
-                onOcupar={handleOcupar}
-                onLiberar={handleLiberar}
-              />
-            ))}
-
-          </div>
-        </div>
-      )}
-
-
       {editingId && (
         <button onClick={resetForm} className="mt-2 w-full py-2 rounded bg-gray-600">
           Cancelar edición
@@ -388,7 +364,7 @@ export default function AdminPanel() {
             <li
               key={item.fecha || item.id}
               className="bg-[#30343a] p-3 rounded cursor-pointer hover:bg-gray-700"
-              onClick={() => editarFecha(item.id || item.fecha, item.fecha, item.horarios)}
+              onClick={() => editarFecha(item.fecha, item.fecha, item.horarios)}
             >
               <strong>{item.fecha}</strong> — {item.horarios.length} horarios
             </li>
