@@ -28,25 +28,30 @@ export default function Turnos() {
   const [ocupados, setOcupados] = useState([]);
 
   useEffect(() => {
-    async function cargarDiasDisponibles() {
-      const { data, error } = await supabase
-        .from("horarios")
-        .select("fecha")
-        .eq("habilitado", true);
+  async function cargarDiasDisponibles() {
+    const { data, error } = await supabase
+      .from("horarios")
+      .select("fecha")
+      .eq("habilitado", true);
 
-      if (error) {
-        console.error(error);
-        return;
-      }
+    console.log("DATA SUPABASE:", data); // 👈 AGREGÁ ESTO
 
-      const fechas = [...new Set(data.map(d => d.fecha))]
-        .map(f => new Date(f));
-
-      setDiasDisponibles(fechas);
+    if (error) {
+      console.error(error);
+      return;
     }
 
-    cargarDiasDisponibles();
-  }, []);
+    const fechas = [...new Set(data.map(d => d.fecha))]
+      .map(f => new Date(f + "T00:00:00"));
+
+    console.log("DIAS DISPONIBLES:", fechas); // 👈 Y ESTO
+
+    setDiasDisponibles(fechas);
+  }
+
+  cargarDiasDisponibles();
+}, []);
+
 
   useEffect(() => {
     async function checkTurnoUsuario() {
@@ -67,19 +72,37 @@ export default function Turnos() {
     checkTurnoUsuario();
   }, []);
 
-
-
   useEffect(() => {
-    if (!selectedDay || !horariosRef.current) return;
-    setSelectedHorario(null);
-    const isMobile = window.innerWidth < 768;
-    if (!isMobile) return;
-    requestAnimationFrame(() => {
-      setTimeout(() => {
-        horariosRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-      }, 60);
-    });
+    if (!selectedDay) return;
+
+    const fechaISO = format(selectedDay, "yyyy-MM-dd");
+
+    async function cargarHorarios() {
+      // 1️⃣ Horarios habilitados por admin
+      const { data: horariosDB, error: errorHorarios } = await supabase
+        .from("horarios")
+        .select("hora")
+        .eq("fecha", fechaISO)
+        .eq("habilitado", true);
+
+      if (errorHorarios) {
+        console.error(errorHorarios);
+        return;
+      }
+
+      // 2️⃣ Turnos ya reservados
+      const { data: reservasDB } = await supabase
+        .from("reservas")
+        .select("hora")
+        .eq("fecha", fechaISO);
+
+      setHorarios(horariosDB.map(h => h.hora));
+      setOcupados(reservasDB.map(r => r.hora));
+    }
+
+    cargarHorarios();
   }, [selectedDay]);
+
 
   const handleSelect = (day) => {
     if (!day) return;
@@ -97,31 +120,6 @@ export default function Turnos() {
 
     setSelectedDay(day);
   };
-
-  useEffect(() => {
-    if (!selectedDay) return;
-
-    async function cargarDia() {
-      const fechaISO = selectedDay.toISOString().split("T")[0];
-
-      const { data: horariosDB } = await supabase
-        .from("horarios")
-        .select("hora")
-        .eq("fecha", fechaISO)
-        .eq("habilitado", true);
-
-      const { data: reservasDB } = await supabase
-        .from("reservas")
-        .select("hora")
-        .eq("fecha", fechaISO);
-
-      setHorarios(horariosDB.map(h => h.hora));
-      setOcupados(reservasDB.map(r => r.hora));
-    }
-
-    cargarDia();
-  }, [selectedDay]);
-
 
   async function reservarTurno(fecha, hora) {
     const userKey = getOrCreateUserKey();
@@ -166,13 +164,16 @@ export default function Turnos() {
           <DayPicker
             mode="single"
             selected={selectedDay}
-            onSelect={handleSelect}
-            disabled={{ before: new Date() }}
-
+            onSelect={setSelectedDay}
+            disabled={[
+              { before: new Date() },
+              (day) =>
+                !diasDisponibles.some(d => isSameDay(d, day))
+            ]}
             modifiers={{
-              habilitado: diasDisponibles,
+              habilitado: (day) =>
+                diasDisponibles.some(d => isSameDay(d, day))
             }}
-
             modifiersStyles={{
               habilitado: {
                 backgroundColor: "#16a34a",
@@ -200,19 +201,20 @@ export default function Turnos() {
                     <button
                       key={hora}
                       disabled={estaOcupado}
+                      onClick={() => setSelectedHorario(hora)}
                       className={`px-3 py-2 rounded-lg text-sm
-    ${estaOcupado
+        ${estaOcupado
                           ? "bg-gray-400 cursor-not-allowed"
                           : selectedHorario === hora
                             ? "bg-green-700"
-                            : "bg-green-500 hover:bg-green-600"}
-  `}
-                      onClick={() => setSelectedHorario(hora)}
+                            : "bg-green-500 hover:bg-green-600"}`}
                     >
-
+                      {hora}
                     </button>
                   );
                 })}
+
+
 
               </div>
 
@@ -224,7 +226,7 @@ export default function Turnos() {
                     const userKey = getOrCreateUserKey();
 
                     // 1) Ver si ya tiene un turno reservado EN ESE DIA por este user_key
-                    const { data: turnoExistente } = await supabase.from("reservas").select("id, fecha, hora, hora").eq("user_key", userKey).eq("fecha", fechaISO).maybeSingle();
+                    const { data: turnoExistente } = await supabase.from("reservas").select("id, fecha, hora").eq("user_key", userKey).eq("fecha", fechaISO).maybeSingle();
 
                     if (turnoExistente) {
                       alert("⚠ Ya tenés un turno pendiente ese día.");
@@ -240,9 +242,7 @@ export default function Turnos() {
                     const diaSemana = format(selectedDay, "EEEE", { locale: es });
                     const fecha = format(selectedDay, "dd/MM", { locale: es });
                     const horaTexto = selectedHorario;
-
                     const mensaje = `Hola Martin! Te confirmo turno para el ${diaSemana} ${fecha} a las ${horaTexto}. Mi codigo de cliente es ${userKeyShort}`;
-
                     const link = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
                     window.open(link, "_blank");
                   }}

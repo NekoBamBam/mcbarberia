@@ -46,7 +46,7 @@ export default function AdminPanel() {
     // 1) Traer SOLO disponibilidades
     const { data: disponibles, error: err1 } = await supabase
       .from("reservas")
-      .select("id, fecha, hora, habilitado, nombre, user_key")
+      .select("id,  echa, hora, habilitado, nombre, user_key")
       .eq("habilitado", true)
       .order("fecha", { ascending: true });
 
