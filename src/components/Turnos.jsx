@@ -3,9 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import React from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabase } from "../lib/supabaseClient";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DateCalendar } from "@mui/x-date-pickers";
+import dayjs from "dayjs";
 
 // Genera y guarda clave única por usuario
 function getOrCreateUserKey() {
@@ -28,29 +32,26 @@ export default function Turnos() {
   const [ocupados, setOcupados] = useState([]);
 
   useEffect(() => {
-  async function cargarDiasDisponibles() {
-    const { data, error } = await supabase
-      .from("horarios")
-      .select("fecha")
-      .eq("habilitado", true);
+    async function cargarDiasDisponibles() {
+      const { data, error } = await supabase
+        .from("horarios")
+        .select("fecha")
+        .eq("habilitado", true);
 
-    console.log("DATA SUPABASE:", data); // 👈 AGREGÁ ESTO
+      if (error) {
+        console.error(error);
+        return;
+      }
 
-    if (error) {
-      console.error(error);
-      return;
+      // 👇 ARRAY DE STRINGS YYYY-MM-DD
+      const fechas = [...new Set(data.map(d => d.fecha))];
+
+      setDiasDisponibles(fechas);
     }
 
-    const fechas = [...new Set(data.map(d => d.fecha))]
-      .map(f => new Date(f + "T00:00:00"));
+    cargarDiasDisponibles();
+  }, []);
 
-    console.log("DIAS DISPONIBLES:", fechas); // 👈 Y ESTO
-
-    setDiasDisponibles(fechas);
-  }
-
-  cargarDiasDisponibles();
-}, []);
 
 
   useEffect(() => {
@@ -77,20 +78,23 @@ export default function Turnos() {
 
     const fechaISO = format(selectedDay, "yyyy-MM-dd");
 
+    if (!diasDisponibles.includes(fechaISO)) {
+      setHorarios([]);
+      return;
+    }
+
     async function cargarHorarios() {
-      // 1️⃣ Horarios habilitados por admin
-      const { data: horariosDB, error: errorHorarios } = await supabase
+      const { data: horariosDB, error } = await supabase
         .from("horarios")
         .select("hora")
         .eq("fecha", fechaISO)
         .eq("habilitado", true);
 
-      if (errorHorarios) {
-        console.error(errorHorarios);
+      if (error) {
+        console.error(error);
         return;
       }
 
-      // 2️⃣ Turnos ya reservados
       const { data: reservasDB } = await supabase
         .from("reservas")
         .select("hora")
@@ -101,25 +105,25 @@ export default function Turnos() {
     }
 
     cargarHorarios();
-  }, [selectedDay]);
+  }, [selectedDay, diasDisponibles]);
 
 
   const handleSelect = (day) => {
     if (!day) return;
 
-    const fechaStr = day.toISOString().split("T")[0];
+    const fechaISO = format(day, "yyyy-MM-dd");
 
-    // Si el día NO está habilitado → NO HACER NADA
-    const diaHabilitado = diasDisponibles.some(
-      d => d.toISOString().split("T")[0] === fechaStr
-    );
+    const estaDisponible = diasDisponibles.includes(fechaISO);
 
-    if (!diaHabilitado) {
-      return; // No permite seleccionar días no habilitados
+    if (!estaDisponible) {
+      setHorarios([]);
+      setSelectedDay(day);
+      return;
     }
 
     setSelectedDay(day);
   };
+
 
   async function reservarTurno(fecha, hora) {
     const userKey = getOrCreateUserKey();
@@ -161,27 +165,22 @@ export default function Turnos() {
 
       <div className="flex flex-col md:flex-row md:gap-10 w-full max-w-5xl justify-center">
         <div className="flex justify-center w-full md:w-auto">
-          <DayPicker
-            mode="single"
-            selected={selectedDay}
-            onSelect={setSelectedDay}
-            disabled={[
-              { before: new Date() },
-              (day) =>
-                !diasDisponibles.some(d => isSameDay(d, day))
-            ]}
-            modifiers={{
-              habilitado: (day) =>
-                diasDisponibles.some(d => isSameDay(d, day))
-            }}
-            modifiersStyles={{
-              habilitado: {
-                backgroundColor: "#16a34a",
-                color: "white",
-                fontWeight: "bold",
-              }
-            }}
-          />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DateCalendar
+              value={selectedDay ? dayjs(selectedDay) : null}
+              onChange={(newValue) => {
+                if (!newValue) return;
+                setSelectedDay(newValue.toDate());
+              }}
+              shouldDisableDate={(date) => {
+                const iso = date.format("YYYY-MM-DD");
+                return !diasDisponibles.includes(iso);
+              }}
+            />
+          </LocalizationProvider>
+
+
+
 
         </div>
 
@@ -221,7 +220,7 @@ export default function Turnos() {
               {selectedHorario && (
                 <button
                   onClick={async () => {
-                    const fechaISO = selectedDay.toISOString().split("T")[0];
+                    const fechaISO = format(selectedDay, "yyyy-MM-dd");
 
                     const userKey = getOrCreateUserKey();
 
