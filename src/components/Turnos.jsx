@@ -1,15 +1,14 @@
 // Turnos.jsx
 import { useEffect, useRef, useState } from "react";
 import React from "react";
-import { DayPicker } from "react-day-picker";
-import "react-day-picker/dist/style.css";
-import { format, isSameDay } from "date-fns";
+import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { supabase } from "../lib/supabaseClient";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DateCalendar } from "@mui/x-date-pickers";
 import dayjs from "dayjs";
+import "dayjs/locale/es";
 
 // Genera y guarda clave única por usuario
 function getOrCreateUserKey() {
@@ -34,7 +33,7 @@ export default function Turnos() {
   useEffect(() => {
     async function cargarDiasDisponibles() {
       const { data, error } = await supabase
-        .from("horarios")
+        .from("reservas")
         .select("fecha")
         .eq("habilitado", true);
 
@@ -85,7 +84,7 @@ export default function Turnos() {
 
     async function cargarHorarios() {
       const { data: horariosDB, error } = await supabase
-        .from("horarios")
+        .from("reservas")
         .select("hora")
         .eq("fecha", fechaISO)
         .eq("habilitado", true);
@@ -98,7 +97,8 @@ export default function Turnos() {
       const { data: reservasDB } = await supabase
         .from("reservas")
         .select("hora")
-        .eq("fecha", fechaISO);
+        .eq("fecha", fechaISO)
+        .neq("nombre", "DISPONIBLE");
 
       setHorarios(horariosDB.map(h => h.hora));
       setOcupados(reservasDB.map(r => r.hora));
@@ -133,6 +133,7 @@ export default function Turnos() {
       .select("id")
       .eq("fecha", fecha)
       .eq("hora", hora)
+      .neq("nombre", "DISPONIBLE")
       .maybeSingle();
 
     if (existente) {
@@ -142,7 +143,7 @@ export default function Turnos() {
 
     const { error } = await supabase
       .from("reservas")
-      .insert({ fecha, hora, user_key: userKey });
+      .insert({ fecha, hora, user_key: userKey, nombre: "Cliente Web" });
 
     if (error) {
       alert("Error al reservar");
@@ -164,8 +165,8 @@ export default function Turnos() {
       )}
 
       <div className="flex flex-col md:flex-row md:gap-10 w-full max-w-5xl justify-center">
-        <div className="flex justify-center w-full md:w-auto">
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <div className="flex justify-center w-full md:w-auto bg-white rounded-xl text-black">
+          <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
             <DateCalendar
               value={selectedDay ? dayjs(selectedDay) : null}
               onChange={(newValue) => {
@@ -220,8 +221,12 @@ export default function Turnos() {
               {selectedHorario && (
                 <button
                   onClick={async () => {
+                    const confirmar = window.confirm(
+                      "¿Querés confirmar este turno?\n\nAl aceptar se enviará un mensaje por WhatsApp."
+                    );
+                      if (!confirmar) return;
+                    
                     const fechaISO = format(selectedDay, "yyyy-MM-dd");
-
                     const userKey = getOrCreateUserKey();
 
                     // 1) Ver si ya tiene un turno reservado EN ESE DIA por este user_key
