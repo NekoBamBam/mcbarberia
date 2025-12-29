@@ -83,25 +83,20 @@ export default function Turnos() {
     }
 
     async function cargarHorarios() {
-      const { data: horariosDB, error } = await supabase
-        .from("reservas")
-        .select("hora")
-        .eq("fecha", fechaISO)
-        .eq("habilitado", true);
-      if (error) {
-        console.error(error);
-        return;
-      }
+  const { data, error } = await supabase
+    .from("reservas")
+    .select("hora, habilitado")
+    .eq("fecha", fechaISO);
 
-      const { data: reservasDB } = await supabase
-        .from("reservas")
-        .select("hora")
-        .eq("fecha", fechaISO)
-        .neq("nombre", "DISPONIBLE");
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-      setHorarios(horariosDB.map(h => h.hora));
-      setOcupados(reservasDB.map(r => r.hora));
-    }
+  setHorarios(data.map(h => h.hora));
+  setOcupados(data.filter(h => !h.habilitado).map(h => h.hora));
+}
+
 
     cargarHorarios();
   }, [selectedDay, diasDisponibles]);
@@ -127,25 +122,20 @@ export default function Turnos() {
   async function reservarTurno(fecha, hora) {
     const userKey = getOrCreateUserKey();
 
-    const { data: existente } = await supabase
-      .from("reservas")
-      .select("id")
-      .eq("fecha", fecha)
-      .eq("hora", hora)
-      .neq("nombre", "DISPONIBLE")
-      .maybeSingle();
-
-    if (existente) {
-      alert("Ese turno ya fue tomado");
-      return false;
-    }
-
     const { error } = await supabase
       .from("reservas")
-      .insert({ fecha, hora, user_key: userKey, nombre: "Cliente Web" });
+      .update({
+        habilitado: false,
+        user_key: userKey,
+        nombre: "Cliente Web",
+      })
+      .eq("fecha", fecha)
+      .eq("hora", hora)
+      .eq("nombre", "DISPONIBLE");
 
     if (error) {
       alert("Error al reservar");
+      console.error(error);
       return false;
     }
 
