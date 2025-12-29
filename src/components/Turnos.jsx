@@ -88,7 +88,6 @@ export default function Turnos() {
         .select("hora")
         .eq("fecha", fechaISO)
         .eq("habilitado", true);
-
       if (error) {
         console.error(error);
         return;
@@ -194,28 +193,35 @@ export default function Turnos() {
               <h3 className="text-xl font-bold mb-4 text-center md:text-left">Horarios para {format(selectedDay, "dd/MM/yyyy")}</h3>
 
               <div className="grid grid-cols-3 gap-3">
-                {horarios.map(hora => {
+                {horarios.map((hora) => {
                   const estaOcupado = ocupados.includes(hora);
+
+                  if (estaOcupado) {
+                    return (
+                      <div
+                        key={hora}
+                        className="bg-red-700 text-white rounded-lg px-3 py-2 text-sm flex flex-col items-center cursor-not-allowed opacity-90"
+                      >
+                        <span className="font-semibold">{hora}</span>
+                        <span className="text-xs mt-1">OCUPADO</span>
+                      </div>
+                    );
+                  }
 
                   return (
                     <button
                       key={hora}
-                      disabled={estaOcupado}
                       onClick={() => setSelectedHorario(hora)}
-                      className={`px-3 py-2 rounded-lg text-sm
-        ${estaOcupado
-                          ? "bg-gray-400 cursor-not-allowed"
-                          : selectedHorario === hora
-                            ? "bg-green-700"
-                            : "bg-green-500 hover:bg-green-600"}`}
+                      className={`px-3 py-2 rounded-lg text-sm font-semibold
+        ${selectedHorario === hora
+                          ? "bg-green-700"
+                          : "bg-green-500 hover:bg-green-600"
+                        }`}
                     >
                       {hora}
                     </button>
                   );
                 })}
-
-
-
               </div>
 
               {selectedHorario && (
@@ -224,9 +230,10 @@ export default function Turnos() {
                     const confirmar = window.confirm(
                       "¿Querés confirmar este turno?\n\nAl aceptar se enviará un mensaje por WhatsApp."
                     );
-                      if (!confirmar) return;
-                    
+                    if (!confirmar) return;
+
                     const fechaISO = format(selectedDay, "yyyy-MM-dd");
+
                     const userKey = getOrCreateUserKey();
 
                     // 1) Ver si ya tiene un turno reservado EN ESE DIA por este user_key
