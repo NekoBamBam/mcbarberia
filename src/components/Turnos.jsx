@@ -83,19 +83,19 @@ export default function Turnos() {
     }
 
     async function cargarHorarios() {
-  const { data, error } = await supabase
-    .from("reservas")
-    .select("hora, habilitado")
-    .eq("fecha", fechaISO);
+      const { data, error } = await supabase
+        .from("reservas")
+        .select("hora, habilitado")
+        .eq("fecha", fechaISO);
 
-  if (error) {
-    console.error(error);
-    return;
-  }
+      if (error) {
+        console.error(error);
+        return;
+      }
 
-  setHorarios(data.map(h => h.hora));
-  setOcupados(data.filter(h => !h.habilitado).map(h => h.hora));
-}
+      setHorarios(data.map(h => h.hora));
+      setOcupados(data.filter(h => !h.habilitado).map(h => h.hora));
+    }
 
 
     cargarHorarios();
@@ -225,12 +225,18 @@ export default function Turnos() {
                     const fechaISO = format(selectedDay, "yyyy-MM-dd");
 
                     const userKey = getOrCreateUserKey();
+                    const hoy = dayjs().format("YYYY-MM-DD");
 
-                    // 1) Ver si ya tiene un turno reservado EN ESE DIA por este user_key
-                    const { data: turnoExistente } = await supabase.from("reservas").select("id, fecha, hora").eq("user_key", userKey).eq("fecha", fechaISO).maybeSingle();
+                    const { data: turnoExistente } = await supabase
+                      .from("reservas")
+                      .select("id, fecha, hora")
+                      .eq("user_key", userKey)
+                      .gte("fecha", hoy) // 👈 cualquier turno futuro bloquea
+                      .limit(1)
+                      .maybeSingle();
 
                     if (turnoExistente) {
-                      alert("⚠ Ya tenés un turno pendiente ese día.");
+                      alert("⚠ Ya tenés un turno pendiente.");
                       setMiTurno(turnoExistente);
                       return;
                     }

@@ -69,46 +69,41 @@ export default function AdminPanel() {
   }, [fechasConHorarios, editingId]);
 
   async function cargarFechas() {
-    // 1) Traer SOLO disponibilidades
-    const { data: disponibles, error: err1 } = await supabase
+    const { data, error } = await supabase
       .from("reservas")
-      .select("id, fecha, hora, habilitado, nombre, user_key")
-      .eq("habilitado", true)
+      .select("fecha, hora, habilitado, nombre")
       .order("fecha", { ascending: true });
 
-    if (err1) {
-      console.error(err1);
+    if (error) {
+      console.error(error);
       setFechasConHorarios([]);
       return;
     }
 
-    // 2) Traer reservas reales (nombre != 'DISPONIBLE')
-    const { data: reservas, error: err2 } = await supabase
-      .from("reservas")
-      .select("fecha, hora, nombre")
-      .neq("nombre", "DISPONIBLE");
-
     const mapa = {};
 
-    disponibles.forEach(d => {
-      if (!mapa[d.fecha]) mapa[d.fecha] = { fecha: d.fecha, horarios: [] };
-
-      // por defecto un horario habilitado es DISPONIBLE
-      let estado = "DISPONIBLE";
-
-      // si existe una reserva real → ocupado
-      if (reservas.some(r => r.fecha === d.fecha && r.hora === d.hora)) {
-        estado = "OCUPADO";
+    data.forEach(r => {
+      if (!mapa[r.fecha]) {
+        mapa[r.fecha] = {
+          fecha: r.fecha,
+          horarios: []
+        };
       }
 
-      mapa[d.fecha].horarios.push({
-        hora: d.hora,
+      const estado =
+        r.habilitado && r.nombre === "DISPONIBLE"
+          ? "LIBRE"
+          : "OCUPADO";
+
+      mapa[r.fecha].horarios.push({
+        hora: r.hora,
         estado
       });
     });
 
     setFechasConHorarios(Object.values(mapa));
   }
+
 
 
   async function editarFecha(id, f, hs) {
