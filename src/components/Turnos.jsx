@@ -29,30 +29,43 @@ export default function Turnos() {
   const [diasDisponibles, setDiasDisponibles] = useState([]);     // lista de Date()
   const [horarios, setHorarios] = useState([]);
   const [ocupados, setOcupados] = useState([]);
-  
+  const [diasConHorarios, setDiasConHorarios] = useState([]);
+  const [diasConDisponibles, setDiasConDisponibles] = useState([]);
+
 
   useEffect(() => {
-    async function cargarDiasDisponibles() {
+    async function cargarDias() {
       const { data, error } = await supabase
         .from("reservas")
-        .select("fecha")
-        .eq("habilitado", true);
+        .select("fecha, habilitado");
 
       if (error) {
         console.error(error);
         return;
       }
 
-      // 👇 ARRAY DE STRINGS YYYY-MM-DD
-      const fechas = [...new Set(data.map(d => d.fecha))];
+      const mapa = {};
 
-      setDiasDisponibles(fechas);
+      data.forEach(r => {
+        if (!mapa[r.fecha]) {
+          mapa[r.fecha] = { total: 0, libres: 0 };
+        }
+
+        mapa[r.fecha].total++;
+        if (r.habilitado) mapa[r.fecha].libres++;
+      });
+
+      const conHorarios = Object.keys(mapa);
+      const conDisponibles = Object.entries(mapa)
+        .filter(([_, v]) => v.libres > 0)
+        .map(([fecha]) => fecha);
+
+      setDiasConHorarios(conHorarios);
+      setDiasConDisponibles(conDisponibles);
     }
 
-    cargarDiasDisponibles();
+    cargarDias();
   }, []);
-
-
 
   useEffect(() => {
     async function checkTurnoUsuario() {
@@ -73,34 +86,29 @@ export default function Turnos() {
     checkTurnoUsuario();
   }, []);
 
-  useEffect(() => {
-    if (!selectedDay) return;
+ useEffect(() => {
+  if (!selectedDay) return;
 
-    const fechaISO = format(selectedDay, "yyyy-MM-dd");
+  const fechaISO = format(selectedDay, "yyyy-MM-dd");
 
-    if (!diasDisponibles.includes(fechaISO)) {
-      setHorarios([]);
+  async function cargarHorarios() {
+    const { data, error } = await supabase
+      .from("reservas")
+      .select("hora, habilitado")
+      .eq("fecha", fechaISO);
+
+    if (error) {
+      console.error(error);
       return;
     }
 
-    async function cargarHorarios() {
-      const { data, error } = await supabase
-        .from("reservas")
-        .select("hora, habilitado")
-        .eq("fecha", fechaISO);
+    setHorarios(data.map(h => h.hora));
+    setOcupados(data.filter(h => !h.habilitado).map(h => h.hora));
+  }
 
-      if (error) {
-        console.error(error);
-        return;
-      }
+  cargarHorarios();
+}, [selectedDay]);
 
-      setHorarios(data.map(h => h.hora));
-      setOcupados(data.filter(h => !h.habilitado).map(h => h.hora));
-    }
-
-
-    cargarHorarios();
-  }, [selectedDay, diasDisponibles]);
 
 
   const handleSelect = (day) => {
@@ -165,9 +173,30 @@ export default function Turnos() {
               }}
               shouldDisableDate={(date) => {
                 const iso = date.format("YYYY-MM-DD");
-                return !diasDisponibles.includes(iso);
+                return !diasConHorarios.includes(iso);
+              }}
+              slotProps={{
+                day: (ownerState) => {
+                  const iso = ownerState.day.format("YYYY-MM-DD");
+
+                  // Día con horarios pero sin disponibles
+                  if (
+                    diasConHorarios.includes(iso) &&
+                    !diasConDisponibles.includes(iso)
+                  ) {
+                    return {
+                      sx: {
+                        color: "#aaa",
+                        backgroundColor: "#222",
+                      }
+                    };
+                  }
+
+                  return {};
+                }
               }}
             />
+
           </LocalizationProvider>
 
 
