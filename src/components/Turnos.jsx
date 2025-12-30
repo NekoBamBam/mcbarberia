@@ -29,6 +29,7 @@ export default function Turnos() {
   const [diasDisponibles, setDiasDisponibles] = useState([]);     // lista de Date()
   const [horarios, setHorarios] = useState([]);
   const [ocupados, setOcupados] = useState([]);
+  
 
   useEffect(() => {
     async function cargarDiasDisponibles() {
@@ -251,7 +252,7 @@ export default function Turnos() {
                     const horaTexto = selectedHorario;
                     const mensaje = `Hola Martin! Te confirmo turno para el ${diaSemana} ${fecha} a las ${horaTexto}. Mi codigo de cliente es ${userKeyShort}`;
                     const link = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
-                    window.open(link, "_blank");
+                    window.location.href = link;
                   }}
                   className="mt-6 w-full cursor-pointer text-center px-6 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700"
                 >
