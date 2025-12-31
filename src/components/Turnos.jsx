@@ -86,28 +86,28 @@ export default function Turnos() {
     checkTurnoUsuario();
   }, []);
 
- useEffect(() => {
-  if (!selectedDay) return;
+  useEffect(() => {
+    if (!selectedDay) return;
 
-  const fechaISO = format(selectedDay, "yyyy-MM-dd");
+    const fechaISO = format(selectedDay, "yyyy-MM-dd");
 
-  async function cargarHorarios() {
-    const { data, error } = await supabase
-      .from("reservas")
-      .select("hora, habilitado")
-      .eq("fecha", fechaISO);
+    async function cargarHorarios() {
+      const { data, error } = await supabase
+        .from("reservas")
+        .select("hora, habilitado")
+        .eq("fecha", fechaISO);
 
-    if (error) {
-      console.error(error);
-      return;
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      setHorarios(data.map(h => h.hora));
+      setOcupados(data.filter(h => !h.habilitado).map(h => h.hora));
     }
 
-    setHorarios(data.map(h => h.hora));
-    setOcupados(data.filter(h => !h.habilitado).map(h => h.hora));
-  }
-
-  cargarHorarios();
-}, [selectedDay]);
+    cargarHorarios();
+  }, [selectedDay]);
 
 
 
@@ -171,36 +171,13 @@ export default function Turnos() {
                 if (!newValue) return;
                 setSelectedDay(newValue.toDate());
               }}
+              minDate={dayjs()}   // 👈 BLOQUEA FECHAS PASADAS
               shouldDisableDate={(date) => {
                 const iso = date.format("YYYY-MM-DD");
                 return !diasConHorarios.includes(iso);
               }}
-              slotProps={{
-                day: (ownerState) => {
-                  const iso = ownerState.day.format("YYYY-MM-DD");
-
-                  // Día con horarios pero sin disponibles
-                  if (
-                    diasConHorarios.includes(iso) &&
-                    !diasConDisponibles.includes(iso)
-                  ) {
-                    return {
-                      sx: {
-                        color: "#aaa",
-                        backgroundColor: "#222",
-                      }
-                    };
-                  }
-
-                  return {};
-                }
-              }}
             />
-
           </LocalizationProvider>
-
-
-
 
         </div>
 
@@ -232,14 +209,19 @@ export default function Turnos() {
                     <button
                       key={hora}
                       onClick={() => setSelectedHorario(hora)}
-                      className={`px-3 py-2 rounded-lg text-sm font-semibold
-        ${selectedHorario === hora
-                          ? "bg-green-700"
-                          : "bg-green-500 hover:bg-green-600"
-                        }`}
+                      className={`
+    rounded-xl font-semibold transition
+    px-4 py-3 text-base          /* mobile */
+    md:px-5 md:py-3 md:text-lg  /* desktop */
+    ${selectedHorario === hora
+                          ? "bg-green-700 scale-105"
+                          : "bg-green-500 hover:bg-green-600 hover:scale-105"
+                        }
+  `}
                     >
                       {hora}
                     </button>
+
                   );
                 })}
               </div>
@@ -279,7 +261,7 @@ export default function Turnos() {
                     const diaSemana = format(selectedDay, "EEEE", { locale: es });
                     const fecha = format(selectedDay, "dd/MM", { locale: es });
                     const horaTexto = selectedHorario;
-                    const mensaje = `Hola Martin! Te confirmo turno para el ${diaSemana} ${fecha} a las ${horaTexto}. Mi codigo de cliente es ${userKeyShort}`;
+                    const mensaje = `Hola Martin! Te confirmo turno para el ${diaSemana} ${fecha} a las ${horaTexto}hs. Mi codigo de cliente es ${userKeyShort}`;
                     const link = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
                     window.location.href = link;
                   }}

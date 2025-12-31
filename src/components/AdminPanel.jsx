@@ -312,22 +312,62 @@ export default function AdminPanel() {
           ))}
         </div>
       </div>
+      <hr className="my-4 border-gray-600" />
 
-      {/* Botón para deshabilitar (borrado) */}
-      <div className="mt-2">
+      <label className="block mt-2 font-semibold">
+        Agregar horario manual
+      </label>
+
+      <div className="flex gap-2 mt-2">
+        <input
+          type="time"
+          value={hora}
+          onChange={(e) => setHora(e.target.value)}
+          className="flex-1 p-2 rounded bg-[#30343a]"
+        />
+
         <button
           onClick={async () => {
-            if (!fecha) return alert("Seleccioná una fecha.");
-            // elimina todos los horarios habilitados para esa fecha (o podés hacer por id)
-            if (!confirm(`¿Querés deshabilitar todos los horarios para ${fecha}?`)) return;
-            await deshabilitarTodosHorariosFecha(fecha);
+            if (!fecha) return alert("Seleccioná una fecha");
+            if (!hora) return alert("Seleccioná una hora");
+
+            // evitar duplicados
+            const { data: existe } = await supabase
+              .from("reservas")
+              .select("id")
+              .eq("fecha", fecha)
+              .eq("hora", hora)
+              .maybeSingle();
+
+            if (existe) {
+              return alert("Ese horario ya existe para ese día");
+            }
+
+            const { error } = await supabase.from("reservas").insert([
+              {
+                fecha,
+                hora,
+                nombre: "DISPONIBLE",
+                user_key: "admin",
+                habilitado: true
+              }
+            ]);
+
+            if (error) {
+              console.error(error);
+              return alert("No se pudo agregar el horario");
+            }
+
+            setHora("");
+            setRefresh(n => n + 1);
+            alert("Horario manual agregado ✅");
           }}
-          className="bg-red-600 px-4 py-2 rounded mt-2"
+          className="bg-blue-600 px-4 py-2 rounded font-semibold"
         >
-          Deshabilitar todos los horarios del día
+          Agregar
         </button>
       </div>
-
+      
       {editingId && (
         <button onClick={resetForm} className="mt-2 w-full py-2 rounded bg-gray-600">
           Cancelar edición
