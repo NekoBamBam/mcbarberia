@@ -230,7 +230,7 @@ export default function Turnos() {
                 <button
                   onClick={async () => {
                     const confirmar = window.confirm(
-                      "¿Querés confirmar este turno?\n\nAl aceptar se enviará un mensaje por WhatsApp."
+                      "¿Querés confirmar este turno?\n\nAl aceptar se enviará un mensaje por WhatsApp que confirma inmediatamente y reserva tu turno."
                     );
                     if (!confirmar) return;
 
@@ -243,7 +243,7 @@ export default function Turnos() {
                       .from("reservas")
                       .select("id, fecha, hora")
                       .eq("user_key", userKey)
-                      .gte("fecha", hoy) // 👈 cualquier turno futuro bloquea
+                      .gte("fecha", hoy) // cualquier turno futuro bloquea
                       .limit(1)
                       .maybeSingle();
 
