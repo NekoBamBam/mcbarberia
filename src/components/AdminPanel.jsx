@@ -286,10 +286,7 @@ export default function AdminPanel() {
         onChange={(e) => setFecha(e.target.value)}
       />
 
-      {/* Agregar horario */}
-      {/* Agregar / Habilitar horario predefinido */}
       <label className="block mt-4">Habilitar horario predefinido</label>
-      {/* NUEVO: selección múltiple */}
       <div className="mt-4 p-2 bg-[#23272f] rounded">
         <p className="mb-2 font-semibold text-sm">Seleccionar varios horarios:</p>
         <div className="grid grid-cols-2 gap-2">

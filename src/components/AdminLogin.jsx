@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function AdminLogin() {
   const [pass, setPass] = useState("");
-  const navigate = useNavigate();   // 👈 ACÁ va, adentro del componente
+  const navigate = useNavigate();   
 
   function handleLogin(e) {
     e.preventDefault();
@@ -12,7 +12,7 @@ export default function AdminLogin() {
 
     if (pass === ADMIN_PASS) {
       localStorage.setItem("isAdmin", "true");
-      navigate("/admin"); // 👈 redirige sin recargar la app
+      navigate("/admin"); 
     } else {
       alert("Contraseña incorrecta");
     }
