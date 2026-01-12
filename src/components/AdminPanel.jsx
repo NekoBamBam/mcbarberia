@@ -9,12 +9,11 @@ export default function AdminPanel() {
   const [selectedHorarioIdForEnable, setSelectedHorarioIdForEnable] = useState("");
   const [fecha, setFecha] = useState("");
   const [hora, setHora] = useState("");
-  const [horarios, setHorarios] = useState([]); // array de strings (HH:MM) - para compatibilidad visual
+  const [horarios, setHorarios] = useState([]);
   const [fechasConHorarios, setFechasConHorarios] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [refresh, setRefresh] = useState(0);
-  // lista local de horarios seleccionados para guardar en batch
   const [batchHorarios, setBatchHorarios] = useState([]);
   const [fechaSeleccionada, setFechaSeleccionada] = useState(null);
   const [horariosDelDia, setHorariosDelDia] = useState([]);
@@ -45,20 +44,9 @@ export default function AdminPanel() {
 
   useEffect(() => {
     (async () => {
-      // check rápido: intentar seleccionar 1 fila de availability
-      /* try {
-        const { error } = await supabase.from("availability").select("fecha").limit(1);
-        if (error) {
-          setHasAvailabilityTable(false);
-        } else {
-          setHasAvailabilityTable(true);
-        }
-      } catch (e) {
-        setHasAvailabilityTable(false);
-      } */
+
       cargarFechas();
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refresh]);
 
   useEffect(() => {
@@ -113,7 +101,6 @@ export default function AdminPanel() {
   }
 
   // --- Turnos manuales (ocupar / liberar) ---
-  // Ahora usamos hora si el horario viene con id, o buscamos id por hora en lista predef.
   async function ocuparHorarioManual(id) {
     const { error } = await supabase
       .from("reservas")
@@ -168,7 +155,7 @@ export default function AdminPanel() {
       .from("reservas")
       .select("id")
       .eq("fecha", fechaISO)
-      .eq("hora", horaTexto) // ← ahora sí, porque ya está declarado arriba
+      .eq("hora", horaTexto)
       .eq("habilitado", true)
       .limit(1)
       .maybeSingle();
@@ -212,14 +199,12 @@ export default function AdminPanel() {
       };
     });
 
-    // Evitar duplicados → eliminar primero lo que ya exista
     await supabase
       .from("reservas")
       .delete()
       .eq("fecha", fechaISO)
       .eq("habilitado", true);
 
-    // Insertar todo junto
     const { error } = await supabase.from("reservas").insert(filas);
 
     if (error) {
@@ -232,9 +217,7 @@ export default function AdminPanel() {
     alert("Horarios guardados correctamente.");
   }
 
-  // Deshabilita (borra) todas las disponibilidades de una fecha
   async function deshabilitarTodosHorariosFecha(fechaISO) {
-    // Eliminamos SOLO las filas que son disponibilidades (habilitado = true)
     const { error } = await supabase
       .from("reservas")
       .delete()
@@ -364,7 +347,7 @@ export default function AdminPanel() {
           Agregar
         </button>
       </div>
-      
+
       {editingId && (
         <button onClick={resetForm} className="mt-2 w-full py-2 rounded bg-gray-600">
           Cancelar edición
