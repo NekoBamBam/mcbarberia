@@ -21,4 +21,4 @@ Landing page moderna y minimalista desarrollada para un barbero, que incluye un 
 - 📱 **Diseño responsive** adaptable a móviles, tablets y desktop.  
 - ⚡ **Carga rápida y optimizada** con Vite + Tailwind.
 
-# Sistema a la venta - Consultas al mail: coriannicolas21@gmail.com
+# ⭐ Sistema a la venta - Consultas al mail: coriannicolas21@gmail.com
