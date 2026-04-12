@@ -24,5 +24,6 @@ Landing page moderna y minimalista desarrollada para un barbero, que incluye un 
 # ⭐ Sistema a la venta - Consultas al mail: coriannicolas21@gmail.com
 
 ## Preview
-
-![Landing Preview](src/assets/screentotal.png)
+<p align="center">
+  <img src="src/assets/screentotal.png" width="700">
+</p>
